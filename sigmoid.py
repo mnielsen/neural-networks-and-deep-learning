@@ -18,7 +18,6 @@ ax.set_ylim([-0.5, 1.5])
 ax.set_xlim([-5,5])
 ax.grid(True)
 ax.set_xlabel('z')
-ax.set_ylabel('sigma(z)')
-ax.set_title('Sigma function')
+ax.set_title('sigmoid function')
 
 plt.show()
