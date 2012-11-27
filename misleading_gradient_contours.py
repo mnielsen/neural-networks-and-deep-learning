@@ -6,12 +6,8 @@ Plots the contours of the function from misleading_gradient.py"""
 
 #### Libraries
 # Third party libraries
-import matplotlib
 import matplotlib.pyplot as plt
 import numpy
-
-matplotlib.rcParams['xtick.direction'] = 'out'
-matplotlib.rcParams['ytick.direction'] = 'out'
 
 X = numpy.arange(-1, 1, 0.02)
 Y = numpy.arange(-1, 1, 0.02)
