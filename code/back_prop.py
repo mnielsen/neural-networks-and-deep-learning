@@ -36,11 +36,11 @@ def stochastic_gradient_descent():
     #    randomly pick out a mini-batch of training examples and their values
         
 
-#### Baseline: Average darkness
+#### Baseline: Average darkness classifier
 ####
-#### A simple baseline comparison.  Gesses which digit an image is by
-#### computing how dark the image is, and then returns whichever digit
-#### had the closest average darkness in the training data.
+#### Guesses which digit an image is by computing how dark the image
+#### is, and then returns whichever digit had the closest average
+#### darkness in the training data
 
 def avg_darkness():
     """ Return a defaultdict whose keys are the digits, 0 through 9.
@@ -74,11 +74,11 @@ def test_average_darkness_baseline():
 def test_svm_baseline():
     training_set, validation_set, test_set = load_data()
     clf = svm.SVC()
-    clf.fit(training_set[0][:50000], training_set[1][:50000])
-    predictions = [int(v) for v in clf.predict(test_set[0])]
-    correct = sum(int(x == y) for x, y in zip(predictions, test_set[1]))
+    clf.fit(training_set[0], training_set[1])
+    predictions = [int(v) for v in clf.predict(validation_set[0])]
+    correct = sum(int(x == y) for x, y in zip(predictions, validation_set[1]))
     print "Baseline classifier using an SVM."
-    print "%s of %s values correct." % (correct, len(test_set[1]))
+    print "%s of %s values correct." % (correct, len(validation_set[1]))
 
 #### Miscellanea
 def load_data():
