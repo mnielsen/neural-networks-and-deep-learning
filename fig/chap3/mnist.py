@@ -15,9 +15,10 @@ import numpy as np
 
 def main():
     training_set, validation_set, test_set = load_data()
-    images = get_images()
-    plot_images_together(images)
-    plot_images_separately(images)
+    images = get_images(training_set)
+    plot_2_and_1(images)
+    #plot_images_together(images)
+    #plot_images_separately(images)
 
 #### Plotting
 def plot_images_together(images):
@@ -43,6 +44,19 @@ def plot_images_separately(images):
         plt.yticks(np.array([]))
     plt.show()
 
+def plot_2_and_1(images):
+    "Plot a 2 and a 1 image from the MNIST set."
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 2, 1)
+    ax.matshow(images[5], cmap = matplotlib.cm.binary)
+    plt.xticks(np.array([]))
+    plt.yticks(np.array([]))
+    ax = fig.add_subplot(1, 2, 2)
+    ax.matshow(images[3], cmap = matplotlib.cm.binary)
+    plt.xticks(np.array([]))
+    plt.yticks(np.array([]))
+    plt.show()
+
 #### Miscellanea
 def load_data():
     """ Return the MNIST data as a tuple containing the training data,
@@ -52,7 +66,7 @@ def load_data():
     f.close()
     return (training_set, validation_set, test_set)
 
-def get_images():
+def get_images(training_set):
     """ Return a list containing the first six images from the MNIST
     data set. Each image is represented as a 2-d numpy array."""
     flattened_images = training_set[0][:6]
