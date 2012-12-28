@@ -10,16 +10,16 @@ descent, not a cleanly-designed and generalizable implementation."""
 #### Libraries
 # Third-party libraries
 import matplotlib.pyplot as plt
-import numpy
+import numpy as np
 
 def sigmoid(z):
-    return 1.0/(1.0+numpy.exp(-z))
+    return 1.0/(1.0+np.exp(-z))
 
 def neuron(w, x):
     """ Return the output from the sigmoid neuron with weights ``w``
     and inputs ``x``.  Both are numpy arrays, with three and two
     elements, respectively.  The first input weight is the bias."""
-    return sigmoid(w[0]+numpy.inner(w[1:], x))
+    return sigmoid(w[0]+np.inner(w[1:], x))
 
 def h(w, x):
     """ Return the output from the three-neuron network with weights
@@ -29,7 +29,7 @@ def h(w, x):
     two elements."""
     neuron1_out = neuron(w[0:3], x) # top left neuron
     neuron2_out = neuron(w[3:6], x) # bottom left neuron
-    return neuron(w[6:9], numpy.array([neuron1_out, neuron2_out]))
+    return neuron(w[6:9], np.array([neuron1_out, neuron2_out]))
 
 def cost(w):
     """ Return the cost when the neural network has weights ``w``.
@@ -37,7 +37,7 @@ def cost(w):
     # inputs are converted to arrays in the last line of the function
     inputs = [[0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [1.0, 1.0]] 
     outputs = [0.0, 1.0, 1.0, 0.0] # corresponding outputs for XOR
-    return sum((y-h(w, numpy.array(x)))**2 for x, y in zip(inputs, outputs))
+    return sum((y-h(w, np.array(x)))**2 for x, y in zip(inputs, outputs))
 
 def partial(f, k, w):
     """ Return the partial derivative of the function ``f`` with
@@ -57,14 +57,14 @@ def gradient_descent(cost, eta, n):
     Return a tuple whose first entry is an array containing the final
     weights, and whose second entry is a list of the values the
     ``cost`` function took at different iterations."""
-    w = numpy.random.uniform(-1, 1, 9) # initialize weights randomly
+    w = np.random.uniform(-1, 1, 9) # initialize weights randomly
     costs = []
     for j in xrange(n):
         c = cost(w)
         print "Current cost: {0:.3f}".format(c)
         costs.append(c)
         gradient = [partial(cost, k, w) for k in xrange(9)]
-        w = numpy.array([wt-eta*d for wt, d in zip(w, gradient)])
+        w = np.array([wt-eta*d for wt, d in zip(w, gradient)])
     return w, costs
 
 def main():
@@ -75,7 +75,7 @@ def main():
     w, costs = gradient_descent(cost, 0.1, 10000)
     print "\nFinal cost: {0:.3f}".format(cost(w))
     print "\nFinal weights: %s" % w
-    plt.plot(numpy.array(costs))
+    plt.plot(np.array(costs))
     plt.xlabel('iteration')
     plt.ylabel('cost')
     plt.title('How cost decreases with the number of iterations')

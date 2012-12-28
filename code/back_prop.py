@@ -14,11 +14,11 @@ import cPickle
 # Third-party libraries
 import matplotlib
 import matplotlib.pyplot as plt
-import numpy
+import numpy as np
 from sklearn import svm
 
 def sigmoid(z):
-    return 1.0/(1.0+numpy.exp(-z))
+    return 1.0/(1.0+np.exp(-z))
 
 def sigmoid_prime(z):
     return sigmoid(z)*(1-sigmoid(z))
