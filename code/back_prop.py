@@ -12,6 +12,7 @@ from collections import defaultdict
 import cPickle
 
 # Third-party libraries
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy
 from sklearn import svm
@@ -42,7 +43,7 @@ def stochastic_gradient_descent():
 #### is, and then returns whichever digit had the closest average
 #### darkness in the training data
 
-def avg_darkness():
+def avg_darkness(training_set):
     """ Return a defaultdict whose keys are the digits, 0 through 9.
     For each digit we compute the average darkness of images
     containing that digit.  The darkness for any particular image is
@@ -64,7 +65,7 @@ def guess_digit(image, avg_darkness):
 
 def test_average_darkness_baseline():
     training_set, validation_set, test_set = load_data()
-    avgs = avg_darkness()
+    avgs = avg_darkness(training_set)
     correct = sum(int(guess_digit(image, avgs) == digit)
                   for image, digit in zip(test_set[0], test_set[1]))
     print "Baseline classifier using average darkness of image."
@@ -72,13 +73,29 @@ def test_average_darkness_baseline():
 
 #### Baseline: SVM classifier
 def test_svm_baseline():
+    """
+    Use an SVM to classify MNIST digits.  Print the number which are
+    classified correctly, and draw a figure showing the first ten
+    images which are misclassified."""
     training_set, validation_set, test_set = load_data()
     clf = svm.SVC()
     clf.fit(training_set[0], training_set[1])
-    predictions = [int(v) for v in clf.predict(validation_set[0])]
-    correct = sum(int(x == y) for x, y in zip(predictions, validation_set[1]))
+    predictions = [int(v) for v in clf.predict(test_set[0])]
+    num_correct = sum(int(x == y) for x, y in zip(predictions, test_set[1]))
     print "Baseline classifier using an SVM."
-    print "%s of %s values correct." % (correct, len(validation_set[1]))
+    print "%s of %s values correct." % (num_correct, len(test_set[1]))
+    # indices of the images where we fail
+    failures = [j for (j, z) in enumerate(zip(predictions, test_set[1]))
+                if z[0] != z[1]]
+    # the first ten images where we fail
+    images = [test_set[0][failures[j]] for j in xrange(10)]
+    fig = plt.figure()
+    for j in xrange(1, 11):
+        ax = fig.add_subplot(1, 10, j)
+        ax.matshow(images[j-1], cmap = matplotlib.cm.binary)
+        plt.xticks(np.array([]))
+        plt.yticks(np.array([]))
+    plt.show()
 
 #### Miscellanea
 def load_data():

@@ -7,7 +7,7 @@ perceptron learning algorithm."""
 
 #### Libraries
 # Third-party library
-import numpy
+import numpy as np
 
 class Perceptron():
     """ A Perceptron instance can take a function and attempt to
@@ -20,18 +20,18 @@ class Perceptron():
         perceptron."""
         self.num_inputs = num_inputs
         self.bias = 0.0
-        self.weights = numpy.zeros(num_inputs)
+        self.weights = np.zeros(num_inputs)
         # self.inputs is a convenience attribute.  It's a list containing
         # all possible binary inputs to the perceptron.  E.g., for three
-        # inputs it is: [numpy.array([0, 0, 0]), numpy.array([0, 0, 1]), ...]
-        self.inputs = [numpy.array([int(y)
+        # inputs it is: [np.array([0, 0, 0]), np.array([0, 0, 1]), ...]
+        self.inputs = [np.array([int(y)
                         for y in bin(x).lstrip("0b").zfill(num_inputs)])
                        for x in xrange(2**num_inputs)]      
 
     def output(self, x):
         """ Return the output (0 or 1) from the perceptron, with input
         ``x``."""
-        return 1 if numpy.inner(self.weights, x)+self.bias > 0 else 0
+        return 1 if np.inner(self.weights, x)+self.bias > 0 else 0
 
     def learn(self, f, eta=0.1):
         """ Find a bias and a set of weights for a perceptron that
@@ -39,8 +39,8 @@ class Perceptron():
         should be a small positive number.  Does not terminate when
         the function cannot be computed using a perceptron."""        
         # initialize the bias and weights with random values
-        self.bias = numpy.random.normal()
-        self.weights = numpy.random.randn(self.num_inputs)
+        self.bias = np.random.normal()
+        self.weights = np.random.randn(self.num_inputs)
         number_of_errors = -1
         while number_of_errors != 0:         
             number_of_errors = 0
