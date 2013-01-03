@@ -77,59 +77,29 @@ def test_svm_baseline():
         plt.yticks(np.array([]))
     plt.show()
 
-#### Miscellanea
-def load_data():
-    """ Return the MNIST data as a tuple containing the training data,
-    the validation data, and the test data."""
-    # TODO: Ask Ng if I can host it (where?)
-    f = open('mnist.pkl', 'rb')
-    training_set, validation_set, test_set = cPickle.load(f)
-    f.close()
-    return (training_set, validation_set, test_set)
-
-
-
-#### Neural network implementation
+#### Neural network classifier
 
 class Network():
 
     def __init__(self, sizes):
+        """ `sizes` is a list containing the number of neurons in the
+        layers of a feedforward network.  For example, if the list was
+        [2, 3, 1] then it would be a three-layer network, with the
+        first layer containing 2 neurons, the second layer 3 neurons,
+        and the third layer 1 neuron."""
         self.num_layers = len(sizes)
         self.sizes = sizes
         self.biases = [np.random.randn(y, 1) for y in sizes[1:]]
         self.weights = [np.random.randn(y, x) 
                         for x, y in zip(sizes[:-1], sizes[1:])]
 
-    def feedforward(self, activation):
+    def feedforward(self, x):
+        """ Return the output of the network if `x` is input."""
         for biases, weight_matrix in zip(self.biases, self.weights):
-            activation = sigmoid_vec(np.dot(weight_matrix, activation)+biases)
-        return activation
+            x = sigmoid_vec(np.dot(weight_matrix, x)+biases)
+        return x
 
-    def cost(self, x, y):
-        return (self.feedforward(x)-y)**2 / 2.0
-
-    def comparison_gradient(self, activation, y, j, k, l):
-        """
-        Return the partial derivative of the cost function for
-        ``activation`` with respect to the weight joining the k'th and
-        l'th neurons in the j'th layer of weights.  The input ``y`` is
-        the correct output value for the network.  This partial
-        derivative is computed numerically, not using backpropagation.
-        It's included as a test comparison to be used against the
-        computation done using backpropagation."""
-        # Construct two networks with the appropriate weight modified
-        delta = 0.00001 # amount to vary the weight by
-        net1 = Network(self.sizes)
-        net1.biases = [np.copy(bias) for bias in self.biases]
-        net1.weights = [np.copy(wt) for wt in self.weights]
-        net1.weights[j][(l, k)] += delta
-        net2 = Network(self.sizes)
-        net2.biases = [np.copy(bias) for bias in self.biases]
-        net2.weights = [np.copy(wt) for wt in self.weights]
-        net2.weights[j][(l, k)] -= delta
-        return (net1.cost(activation, y)-net2.cost(activation, y))/(2*delta)
-
-    def back_prop(self, training_data, eta=0.1):
+    def backprop(self, training_data, eta=0.1):
         nabla = [np.zeros(self.weights[-l].shape) 
                  for l in xrange(1, self.num_layers)]
         nabla.reverse()
@@ -166,6 +136,31 @@ class Network():
             #    activation, y, 0, 0, 1)
         self.weights = [wt-eta*nb for wt, nb in zip(self.weights, nabla)]
         self.biases = [b-eta*nb for b, nb in zip(self.biases, nabla_b)]
+
+    def cost(self, x, y):
+        return (self.feedforward(x)-y)**2 / 2.0
+
+    def comparison_gradient(self, activation, y, j, k, l):
+        """
+        Return the partial derivative of the cost function for
+        ``activation`` with respect to the weight joining the k'th and
+        l'th neurons in the j'th layer of weights.  The input ``y`` is
+        the correct output value for the network.  This partial
+        derivative is computed numerically, not using backpropagation.
+        It's included as a test comparison to be used against the
+        computation done using backpropagation."""
+        # Construct two networks with the appropriate weight modified
+        delta = 0.00001 # amount to vary the weight by
+        net1 = Network(self.sizes)
+        net1.biases = [np.copy(bias) for bias in self.biases]
+        net1.weights = [np.copy(wt) for wt in self.weights]
+        net1.weights[j][(l, k)] += delta
+        net2 = Network(self.sizes)
+        net2.biases = [np.copy(bias) for bias in self.biases]
+        net2.weights = [np.copy(wt) for wt in self.weights]
+        net2.weights[j][(l, k)] -= delta
+        return (net1.cost(activation, y)-net2.cost(activation, y))/(2*delta)
+
     def error(self, training_data):
         return sum((self.feedforward(x)-y)**2/2 for x, y in training_data)
 
@@ -182,11 +177,11 @@ sigmoid_prime_vec = np.vectorize(sigmoid_prime)
 
 #### Testing
 
-def test_back_prop(n):
+def test_backprop(n):
     net = Network([2, 2, 1])
     training_data = test_harness_training_data()
     for j in xrange(n):
-        net.back_prop(test_harness_training_data())
+        net.backprop(test_harness_training_data())
         error = sum((net.feedforward(x)-y)**2/2 for x, y in training_data)
         print error
     return net
@@ -222,3 +217,13 @@ def test_harness_training_data():
         (np.array([[1.0], [0.0]]), np.array([[1.0]])),
         (np.array([[1.0], [1.0]]), np.array([[0.0]]))]
 
+
+#### Miscellanea
+def load_data():
+    """ Return the MNIST data as a tuple containing the training data,
+    the validation data, and the test data."""
+    # TODO: Ask Ng if I can host it (where?)
+    f = open('mnist.pkl', 'rb')
+    training_set, validation_set, test_set = cPickle.load(f)
+    f.close()
+    return (training_set, validation_set, test_set)
