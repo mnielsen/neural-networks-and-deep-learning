@@ -5,7 +5,6 @@ backprop
 Uses backpropagation and stochastic gradient descent to implement a
 basic handwritten digit recognizer."""
 
-
 #### Libraries
 # Standard library
 from collections import defaultdict
@@ -82,7 +81,7 @@ def test_svm_baseline():
 class Network():
 
     def __init__(self, sizes):
-        """ `sizes` is a list containing the number of neurons in the
+        """The list `sizes` contains the number of neurons in the
         layers of a feedforward network.  For example, if the list was
         [2, 3, 1] then it would be a three-layer network, with the
         first layer containing 2 neurons, the second layer 3 neurons,
@@ -124,11 +123,11 @@ class Network():
                 z = zs[-l]
                 spv = sigmoid_prime_vec(z)
                 activation = activations[-l-1]
-                delta_nabla[-l] = \
-                    np.dot(cumulative * spv, np.transpose(activation))
-                nabla[-l] += delta_nabla[-l]
                 delta_nabla_b[-l] = cumulative * spv
+                delta_nabla[-l] = \
+                    np.dot(delta_nabla_b[-l], np.transpose(activation))
                 nabla_b[-l] += delta_nabla_b[-l]
+                nabla[-l] += delta_nabla[-l]
                 cumulative = np.dot(
                     np.transpose(self.weights[-l])*spv, cumulative)
             #print "\nBackprop: %s" % delta_nabla[0][(1, 0)]
