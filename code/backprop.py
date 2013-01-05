@@ -112,7 +112,7 @@ class Network():
                 activation = sigmoid_vec(z)
                 activations.append(activation)
             cumulative = activations[-1]-y
-            # Backward pass
+            # backward pass
             delta_nabla = [np.zeros(wt.shape) for wt in self.weights]
             delta_nabla_b = [np.zeros(b.shape) for b in self.biases]
             for l in xrange(1, self.num_layers):
@@ -129,7 +129,7 @@ class Network():
             #print "\nBackprop: %s" % delta_nabla[0][(1, 0)]
             #print "Numerical: %s" % self.comparison_gradient(
             #    activation, y, 0, 0, 1)
-        self.weights = [wt-eta*nb for wt, nb in zip(self.weights, nabla)]
+        self.weights = [wt-eta*n for wt, n in zip(self.weights, nabla)]
         self.biases = [b-eta*nb for b, nb in zip(self.biases, nabla_b)]
 
     def cost(self, x, y):
