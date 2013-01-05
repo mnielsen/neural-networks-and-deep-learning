@@ -98,7 +98,12 @@ class Network():
             x = sigmoid_vec(np.dot(weight_matrix, x)+biases)
         return x
 
-    def backprop(self, training_data, eta=0.1):
+    def backprop(self, training_data, eta=0.1, testing=False):
+        """Update the network's weights and biases by applying a
+        single iteration of gradient descent using backpropagation.
+        The ``training_data`` is a list of tuples ``(x, y)`` and `eta`
+        is the learning rate.  The flag ``testing`` determines whether
+        or not gradient checking is done."""
         nabla = [np.zeros(wt.shape) for wt in self.weights]
         nabla_b = [np.zeros(b.shape) for b in self.biases]
         for x, y in training_data:
@@ -126,11 +131,13 @@ class Network():
                 nabla[-l] += delta_nabla[-l]
                 cumulative = np.dot(
                     np.transpose(self.weights[-l])*spv, cumulative)
+        self.weights = [wt-eta*n for wt, n in zip(self.weights, nabla)]
+        self.biases = [b-eta*nb for b, nb in zip(self.biases, nabla_b)]
+        if testing:
+            pass
             #print "\nBackprop: %s" % delta_nabla[0][(1, 0)]
             #print "Numerical: %s" % self.comparison_gradient(
             #    activation, y, 0, 0, 1)
-        self.weights = [wt-eta*n for wt, n in zip(self.weights, nabla)]
-        self.biases = [b-eta*nb for b, nb in zip(self.biases, nabla_b)]
 
     def cost(self, x, y):
         return (self.feedforward(x)-y)**2 / 2.0
