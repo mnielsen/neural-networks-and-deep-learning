@@ -130,7 +130,8 @@ class Network():
                 nabla_b[-l] += delta_nabla_b[-l]
                 nabla[-l] += delta_nabla[-l]
                 cumulative = np.dot(
-                    np.transpose(self.weights[-l])*spv, cumulative)
+                    np.transpose(self.weights[-l])*spv.reshape(len(z)), 
+                    cumulative)
         self.weights = [wt-eta*n for wt, n in zip(self.weights, nabla)]
         self.biases = [b-eta*nb for b, nb in zip(self.biases, nabla_b)]
         if testing:
