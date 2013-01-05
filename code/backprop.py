@@ -93,7 +93,7 @@ class Network():
                         for x, y in zip(sizes[:-1], sizes[1:])]
 
     def feedforward(self, x):
-        """ Return the output of the network if `x` is input."""
+        "Return the output of the network if `x` is input."
         for biases, weight_matrix in zip(self.biases, self.weights):
             x = sigmoid_vec(np.dot(weight_matrix, x)+biases)
         return x
@@ -161,7 +161,8 @@ class Network():
         return (net1.cost(activation, y)-net2.cost(activation, y))/(2*delta)
 
     def error(self, training_data):
-        return sum((self.feedforward(x)-y)**2/2 for x, y in training_data)
+        return sum(euclidean_error(self.feedforward(x)-y) 
+                   for x, y in training_data)
 
 #### Miscellaneous functions
 def sigmoid(z):
@@ -173,6 +174,28 @@ def sigmoid_prime(z):
     return sigmoid(z)*(1-sigmoid(z))
 
 sigmoid_prime_vec = np.vectorize(sigmoid_prime)
+
+def euclidean_error(delta):
+    return np.linalg.norm(delta)**2/2.0
+
+def vectorized_result(j):
+    """ Return a 10-dimensional unit vector with a 1.0 in the jth
+    position and zeroes elsewhere.  This is a convenience function
+    which is used to convert XXX."""
+    e = np.zeros((10, 1))
+    e[j] = 1.0
+    return e
+
+#### Neural network MNIST classifier
+def neural_network_classifier():
+    training_set, validation_set, test_set = load_data()
+    inputs = [np.reshape(x, (784, 1)) for x in training_set[0]]
+    results = [vectorized_result(y) for y in training_set[1]]
+    training_data = zip(inputs, results)
+    net = Network([784, 10])
+    for j in xrange(10):
+        print net.error(training_data)
+        net.backprop(training_data)
 
 #### Testing
 
