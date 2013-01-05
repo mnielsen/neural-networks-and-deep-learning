@@ -99,9 +99,7 @@ class Network():
         return x
 
     def backprop(self, training_data, eta=0.1):
-        nabla = [np.zeros(self.weights[-l].shape) 
-                 for l in xrange(1, self.num_layers)]
-        nabla.reverse()
+        nabla = [np.zeros(wt.shape) for wt in self.weights]
         nabla_b = [np.zeros(b.shape) for b in self.biases]
         for x, y in training_data:
             # forward pass
@@ -115,9 +113,7 @@ class Network():
                 activations.append(activation)
             cumulative = activations[-1]-y
             # Backward pass
-            delta_nabla = [np.zeros(self.weights[-l].shape) 
-                           for l in xrange(1, self.num_layers)]
-            delta_nabla.reverse()
+            delta_nabla = [np.zeros(wt.shape) for wt in self.weights]
             delta_nabla_b = [np.zeros(b.shape) for b in self.biases]
             for l in xrange(1, self.num_layers):
                 z = zs[-l]
