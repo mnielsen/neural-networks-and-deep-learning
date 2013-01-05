@@ -104,10 +104,10 @@ class Network():
         for x, y in training_data:
             # forward pass
             activation = x
-            activations = [x]
-            zs = []
-            for biases, weight_matrix in zip(self.biases, self.weights):
-                z = np.dot(weight_matrix, activation)+biases
+            activations = [x] # list to store all the activations
+            zs = [] # list to store all the z vectors
+            for b, wt in zip(self.biases, self.weights):
+                z = np.dot(wt, activation)+b
                 zs.append(z)
                 activation = sigmoid_vec(z)
                 activations.append(activation)
