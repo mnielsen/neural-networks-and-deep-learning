@@ -69,10 +69,10 @@ def gradient_descent(cost, eta, n):
     return w, costs
 
 def main():
-    """ Perform gradient descent to find weights for a sigmoidal
-    neural network to compute XOR.  10,000 iterations are used.
-    Outputs the final value of the cost function, the final weights,
-    and plots a graph of cost as a function of iteration."""
+    """ Perform gradient descent to find weights for a sigmoid neural
+    network to compute XOR.  10,000 iterations are used.  Outputs the
+    final value of the cost function, the final weights, and plots a
+    graph of cost as a function of iteration."""
     w, costs = gradient_descent(cost, 0.1, 10000)
     print "\nFinal cost: {0:.3f}".format(cost(w))
     print "\nFinal weights: %s" % w
