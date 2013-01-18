@@ -31,13 +31,14 @@ def h(w, x):
     neuron2_out = neuron(w[3:6], x) # bottom left neuron
     return neuron(w[6:9], np.array([neuron1_out, neuron2_out]))
 
+# inputs and corresponding outputs for the function we're computing (XOR)
+INPUTS = [[0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [1.0, 1.0]] 
+OUTPUTS = [0.0, 1.0, 1.0, 0.0]
+
 def cost(w):
     """ Return the cost when the neural network has weights ``w``.
     The cost is computed with respect to the XOR function."""
-    # inputs are converted to arrays in the last line of the function
-    inputs = [[0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [1.0, 1.0]] 
-    outputs = [0.0, 1.0, 1.0, 0.0] # corresponding outputs for XOR
-    return sum((y-h(w, np.array(x)))**2 for x, y in zip(inputs, outputs))
+    return 0.5 * sum((y-h(w, np.array(x)))**2 for x, y in zip(INPUTS, OUTPUTS))
 
 def partial(f, k, w):
     """ Return the partial derivative of the function ``f`` with

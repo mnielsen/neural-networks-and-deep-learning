@@ -98,12 +98,14 @@ class Network():
             x = sigmoid_vec(np.dot(weight_matrix, x)+biases)
         return x
 
-    def backprop(self, training_data, eta=0.1, testing=False):
+    def backprop(self, training_data, eta=0.1, 
+                 regularization=0.01, testing=False):
         """Update the network's weights and biases by applying a
         single iteration of gradient descent using backpropagation.
         The ``training_data`` is a list of tuples ``(x, y)`` and `eta`
-        is the learning rate.  The flag ``testing`` determines whether
-        or not gradient checking is done."""
+        is the learning rate.  The variable ``regularization`` is the
+        value of the regularization paremeter.  The flag ``testing``
+        determines whether or not gradient checking is done."""
         nabla = [np.zeros(wt.shape) for wt in self.weights]
         nabla_b = [np.zeros(b.shape) for b in self.biases]
         for x, y in training_data:
@@ -132,6 +134,7 @@ class Network():
                 cumulative = np.dot(
                     np.transpose(self.weights[-l])*spv.reshape(len(z)), 
                     cumulative)
+        nabla = [n+regularization*wt for n, wt in zip(nabla, self.weights)]
         self.weights = [wt-eta*n for wt, n in zip(self.weights, nabla)]
         self.biases = [b-eta*nb for b, nb in zip(self.biases, nabla_b)]
         if testing:
@@ -164,9 +167,12 @@ class Network():
         net2.weights[j][(l, k)] -= delta
         return (net1.cost(activation, y)-net2.cost(activation, y))/(2*delta)
 
-    def error(self, training_data):
-        return sum(euclidean_error(self.feedforward(x)-y) 
+    def error(self, training_data, regularization=0.01):
+        training_error = sum(euclidean_error(self.feedforward(x)-y) 
                    for x, y in training_data)
+        regularization_error = regularization * sum(
+            np.sum(wt*wt) for wt in self.weights)/2.0
+        return training_error+regularization_error
 
 #### Miscellaneous functions
 def sigmoid(z):
@@ -198,8 +204,8 @@ def neural_network_classifier():
     training_data = zip(inputs, results)
     net = Network([784, 10])
     for j in xrange(10):
-        print net.error(training_data)
-        net.backprop(training_data)
+        print net.error(training_data, regularization=0.001)
+        net.backprop(training_data, eta=0.1, regularization=0.001)
 
 #### Testing
 
@@ -207,9 +213,9 @@ def test_backprop(n):
     net = Network([2, 2, 1])
     training_data = test_harness_training_data()
     for j in xrange(n):
-        net.backprop(test_harness_training_data())
+        net.backprop(test_harness_training_data(), eta=0.1, regularization=0.0001)
         error = sum((net.feedforward(x)-y)**2/2 for x, y in training_data)
-        print error
+        print net.error(training_data, 0.0001)
     return net
 
 def test_feedforward():
