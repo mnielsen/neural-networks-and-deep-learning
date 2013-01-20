@@ -85,57 +85,55 @@ class Network():
         layers of a feedforward network.  For example, if the list was
         [2, 3, 1] then it would be a three-layer network, with the
         first layer containing 2 neurons, the second layer 3 neurons,
-        and the third layer 1 neuron."""
+        and the third layer 1 neuron.  The biases and weights for the
+        network are initialized randomly, using a Gaussian
+        distribution with mean 0, and variance 1."""
         self.num_layers = len(sizes)
         self.sizes = sizes
         self.biases = [np.random.randn(y, 1) for y in sizes[1:]]
         self.weights = [np.random.randn(y, x) 
                         for x, y in zip(sizes[:-1], sizes[1:])]
 
-    def feedforward(self, x):
-        "Return the output of the network if `x` is input."
-        for biases, weight_matrix in zip(self.biases, self.weights):
-            x = sigmoid_vec(np.dot(weight_matrix, x)+biases)
-        return x
+    def feedforward(self, a):
+        "Return the output of the network if `a` is input."
+        for b, w in zip(self.biases, self.weights):
+            a = sigmoid_vec(np.dot(w, a)+b)
+        return a
 
     def backprop(self, training_data, eta=0.1, 
                  regularization=0.01, testing=False):
         """Update the network's weights and biases by applying a
         single iteration of gradient descent using backpropagation.
-        The ``training_data`` is a list of tuples ``(x, y)`` and `eta`
-        is the learning rate.  The variable ``regularization`` is the
-        value of the regularization paremeter.  The flag ``testing``
-        determines whether or not gradient checking is done."""
-        nabla = [np.zeros(wt.shape) for wt in self.weights]
+        The ``training_data`` is a list of tuples ``(x, y)`` and
+        ``eta`` is the learning rate.  The variable ``regularization``
+        is the value of the regularization paremeter.  The flag
+        ``testing`` determines whether or not gradient checking is
+        done."""
         nabla_b = [np.zeros(b.shape) for b in self.biases]
+        nabla_w = [np.zeros(w.shape) for w in self.weights]
         for x, y in training_data:
-            # forward pass
+            # feedforward stage
             activation = x
             activations = [x] # list to store all the activations
             zs = [] # list to store all the z vectors
-            for b, wt in zip(self.biases, self.weights):
-                z = np.dot(wt, activation)+b
+            for b, w in zip(self.biases, self.weights):
+                z = np.dot(w, activation)+b
                 zs.append(z)
                 activation = sigmoid_vec(z)
                 activations.append(activation)
-            cumulative = activations[-1]-y
             # backward pass
-            delta_nabla = [np.zeros(wt.shape) for wt in self.weights]
-            delta_nabla_b = [np.zeros(b.shape) for b in self.biases]
-            for l in xrange(1, self.num_layers):
+            delta = (activations[-1]-y) * sigmoid_prime_vec(zs[-1])
+            nabla_b[-1] += delta
+            nabla_w[-1] += np.dot(delta, np.transpose(activations[-2]))
+            for l in xrange(2, self.num_layers):
                 z = zs[-l]
                 spv = sigmoid_prime_vec(z)
-                activation = activations[-l-1]
-                delta_nabla_b[-l] = cumulative * spv
-                delta_nabla[-l] = \
-                    np.dot(delta_nabla_b[-l], np.transpose(activation))
-                nabla_b[-l] += delta_nabla_b[-l]
-                nabla[-l] += delta_nabla[-l]
-                cumulative = np.dot(
-                    np.transpose(self.weights[-l])*spv.reshape(len(z)), 
-                    cumulative)
-        nabla = [n+regularization*wt for n, wt in zip(nabla, self.weights)]
-        self.weights = [wt-eta*n for wt, n in zip(self.weights, nabla)]
+                delta = np.dot(
+                    np.transpose(self.weights[-l+1]), delta) * spv
+                nabla_b[-l] += delta
+                nabla_w[-l] += np.dot(delta, np.transpose(activations[-l-1]))
+        # nabla = [n+regularization*wt for n, wt in zip(nabla, self.weights)]
+        self.weights = [w-eta*n for w, n in zip(self.weights, nabla_w)]
         self.biases = [b-eta*nb for b, nb in zip(self.biases, nabla_b)]
         if testing:
             pass
