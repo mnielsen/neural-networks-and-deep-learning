@@ -3,7 +3,7 @@ backprop
 ~~~~~~~~
 
 Uses backpropagation and stochastic gradient descent to implement a
-basic handwritten digit recognizer."""
+handwritten digit recognizer."""
 
 #### Libraries
 # Standard library
@@ -18,11 +18,11 @@ from sklearn import svm
 
 #### Baseline: Average darkness classifier
 ####
-#### Guesses which digit an image is by computing how dark the image
-#### is, and then returns whichever digit had the closest average
-#### darkness in the training data
+#### Classifies images by computing how dark the image is, and then
+#### returning whichever digit had the closest average darkness in the
+#### training data
 
-def avg_darkness(training_set):
+def avg_darkness(training_data):
     """ Return a defaultdict whose keys are the digits, 0 through 9.
     For each digit we compute the average darkness of images
     containing that digit.  The darkness for any particular image is
@@ -30,11 +30,11 @@ def avg_darkness(training_set):
     digit_counts = defaultdict(int)
     darkness = defaultdict(float)
     avgs = defaultdict(float)
-    for image, digit in zip(training_set[0], training_set[1]):
+    for image, digit in zip(training_data[0], training_data[1]):
         digit_counts[digit] += 1
         darkness[digit] += sum(image)
-    for digit, v in digit_counts.iteritems():
-        avgs[digit] = darkness[digit] / v
+    for digit, n in digit_counts.iteritems():
+        avgs[digit] = darkness[digit] / n
     return avgs
 
 def guess_digit(image, avg_darkness):
@@ -43,12 +43,12 @@ def guess_digit(image, avg_darkness):
     return min(distance, key=distance.get)
 
 def test_average_darkness_baseline():
-    training_set, validation_set, test_set = load_data()
-    avgs = avg_darkness(training_set)
+    training_data, validation_data, test_data = load_data()
+    avgs = avg_darkness(training_data)
     correct = sum(int(guess_digit(image, avgs) == digit)
-                  for image, digit in zip(test_set[0], test_set[1]))
+                  for image, digit in zip(test_data[0], test_data[1]))
     print "Baseline classifier using average darkness of image."
-    print "%s of %s values correct." % (correct, len(test_set[1]))
+    print "%s of %s values correct." % (correct, len(test_data[1]))
 
 #### Baseline: SVM classifier
 def test_svm_baseline():
@@ -56,18 +56,18 @@ def test_svm_baseline():
     Use an SVM to classify MNIST digits.  Print the number which are
     classified correctly, and draw a figure showing the first ten
     images which are misclassified."""
-    training_set, validation_set, test_set = load_data()
+    training_data, validation_data, test_data = load_data()
     clf = svm.SVC()
-    clf.fit(training_set[0], training_set[1])
-    predictions = [int(v) for v in clf.predict(test_set[0])]
-    num_correct = sum(int(x == y) for x, y in zip(predictions, test_set[1]))
+    clf.fit(training_data[0], training_data[1])
+    predictions = [int(v) for v in clf.predict(test_data[0])]
+    num_correct = sum(int(x == y) for x, y in zip(predictions, test_data[1]))
     print "Baseline classifier using an SVM."
-    print "%s of %s values correct." % (num_correct, len(test_set[1]))
+    print "%s of %s values correct." % (num_correct, len(test_data[1]))
     # indices of the images where we fail
-    failures = [j for (j, z) in enumerate(zip(predictions, test_set[1]))
+    failures = [j for (j, z) in enumerate(zip(predictions, test_data[1]))
                 if z[0] != z[1]]
     # the first ten images where we fail
-    images = [test_set[0][failures[j]] for j in xrange(10)]
+    images = [test_data[0][failures[j]] for j in xrange(10)]
     fig = plt.figure()
     for j in xrange(1, 11):
         ax = fig.add_subplot(1, 10, j)
@@ -132,8 +132,8 @@ class Network():
                     np.transpose(self.weights[-l+1]), delta) * spv
                 nabla_b[-l] += delta
                 nabla_w[-l] += np.dot(delta, np.transpose(activations[-l-1]))
-        # nabla = [n+regularization*wt for n, wt in zip(nabla, self.weights)]
-        self.weights = [w-eta*n for w, n in zip(self.weights, nabla_w)]
+        nabla_w = [nw+regularization*w for nw, w in zip(nabla_w, self.weights)]
+        self.weights = [w-eta*nw for w, nw in zip(self.weights, nabla_w)]
         self.biases = [b-eta*nb for b, nb in zip(self.biases, nabla_b)]
         if testing:
             pass
@@ -196,9 +196,9 @@ def vectorized_result(j):
 
 #### Neural network MNIST classifier
 def neural_network_classifier():
-    training_set, validation_set, test_set = load_data()
-    inputs = [np.reshape(x, (784, 1)) for x in training_set[0]]
-    results = [vectorized_result(y) for y in training_set[1]]
+    training_data, validation_data, test_data = load_data()
+    inputs = [np.reshape(x, (784, 1)) for x in training_data[0]]
+    results = [vectorized_result(y) for y in training_data[1]]
     training_data = zip(inputs, results)
     net = Network([784, 10])
     for j in xrange(10):
@@ -211,7 +211,8 @@ def test_backprop(n):
     net = Network([2, 2, 1])
     training_data = test_harness_training_data()
     for j in xrange(n):
-        net.backprop(test_harness_training_data(), eta=0.1, regularization=0.0001)
+        net.backprop(test_harness_training_data(), eta=0.1, 
+                     regularization=0.0001)
         error = sum((net.feedforward(x)-y)**2/2 for x, y in training_data)
         print net.error(training_data, 0.0001)
     return net
@@ -254,6 +255,6 @@ def load_data():
     the validation data, and the test data."""
     # TODO: Ask Ng if I can host it (where?)
     f = open('mnist.pkl', 'rb')
-    training_set, validation_set, test_set = cPickle.load(f)
+    training_data, validation_data, test_data = cPickle.load(f)
     f.close()
-    return (training_set, validation_set, test_set)
+    return (training_data, validation_data, test_data)
