@@ -9,6 +9,7 @@ handwritten digit recognizer."""
 # Standard library
 from collections import defaultdict
 import cPickle
+import pdb
 
 # Third-party libraries
 import matplotlib
@@ -53,9 +54,9 @@ def test_average_darkness_baseline():
 #### Baseline: SVM classifier
 def test_svm_baseline():
     """
-    Use an SVM to classify MNIST digits.  Print the number which are
-    classified correctly, and draw a figure showing the first ten
-    images which are misclassified."""
+    Use an SVM to classify MNIST digits.  Print the number of digits
+    which are classified correctly, and draw a figure showing the
+    first ten images which are misclassified."""
     training_data, validation_data, test_data = load_data()
     clf = svm.SVC()
     clf.fit(training_data[0], training_data[1])
@@ -101,13 +102,13 @@ class Network():
         return a
 
     def backprop(self, training_data, eta=0.1, 
-                 regularization=0.01, testing=False):
+                 regularization=0.01, gradient_checking=False):
         """Update the network's weights and biases by applying a
         single iteration of gradient descent using backpropagation.
         The ``training_data`` is a list of tuples ``(x, y)`` and
         ``eta`` is the learning rate.  The variable ``regularization``
         is the value of the regularization paremeter.  The flag
-        ``testing`` determines whether or not gradient checking is
+        ``gradient_checking`` determines whether or not gradient checking is
         done."""
         nabla_b = [np.zeros(b.shape) for b in self.biases]
         nabla_w = [np.zeros(w.shape) for w in self.weights]
@@ -125,6 +126,8 @@ class Network():
             delta = (activations[-1]-y) * sigmoid_prime_vec(zs[-1])
             nabla_b[-1] += delta
             nabla_w[-1] += np.dot(delta, np.transpose(activations[-2]))
+            if gradient_checking:
+                self._gradient_check(1, activations[-2], delta, x, y)
             for l in xrange(2, self.num_layers):
                 z = zs[-l]
                 spv = sigmoid_prime_vec(z)
@@ -132,38 +135,50 @@ class Network():
                     np.transpose(self.weights[-l+1]), delta) * spv
                 nabla_b[-l] += delta
                 nabla_w[-l] += np.dot(delta, np.transpose(activations[-l-1]))
+                if gradient_checking:
+                    self._gradient_check(l, activations[-l-1], delta, x, y)
         nabla_w = [nw+regularization*w for nw, w in zip(nabla_w, self.weights)]
         self.weights = [w-eta*nw for w, nw in zip(self.weights, nabla_w)]
         self.biases = [b-eta*nb for b, nb in zip(self.biases, nabla_b)]
-        if testing:
-            pass
-            #print "\nBackprop: %s" % delta_nabla[0][(1, 0)]
-            #print "Numerical: %s" % self.comparison_gradient(
-            #    activation, y, 0, 0, 1)
 
+    def _gradient_check(self, l, activations, delta, x, y):
+        """ Do a gradient check for the -l layer, with ``activations``
+        in the -l-1 layer, and ``delta`` is for the ``-l`` layer.  The
+        input to the network is ``x``, and the desired output is
+        ``y``."""
+        print "\nGradient check for the -%s layer" % l
+        backprop_gradient_weights = np.dot(delta, np.transpose(activations))
+        d = 0.00001 # Delta for the biases and weights for gradient check
+        gradient_check_biases = np.zeros((self.sizes[-l], 1))
+        for j in xrange(self.sizes[-l]):
+            net1 = self.copy()
+            net1.biases[-l][(j,0)] += d
+            net2 = self.copy()
+            net2.biases[-l][(j,0)] -= d
+            gradient_check_biases[j] = (net1.cost(x, y)-net2.cost(x, y))/(2*d)
+        print "Squared Euclidean error in the gradient for biases: %s" % \
+            np.sum((delta-gradient_check_biases)**2)
+        gradient_check_weights = np.zeros((self.sizes[-l], self.sizes[-l-1]))
+        for j in xrange(self.sizes[-l]):
+            for k in xrange(self.sizes[-l-1]):
+                net1 = self.copy()
+                net1.weights[-l][(j,k)] += d
+                net2 = self.copy()
+                net2.weights[-l][(j,k)] -= d
+                gradient_check_weights[j, k] = \
+                    (net1.cost(x, y)-net2.cost(x, y))/(2*d)
+        print "Squared Euclidean error in the gradient for weights: %s" % \
+            np.sum((backprop_gradient_weights-gradient_check_weights)**2)
+
+    def copy(self):
+        "Return a copy of ``self``, with the same biases and weights."
+        net = Network(self.sizes)
+        net.biases = [np.copy(b) for b in self.biases]
+        net.weights = [np.copy(w) for w in self.weights]
+        return net
+        
     def cost(self, x, y):
         return (self.feedforward(x)-y)**2 / 2.0
-
-    def comparison_gradient(self, activation, y, j, k, l):
-        """
-        Return the partial derivative of the cost function for
-        ``activation`` with respect to the weight joining the k'th and
-        l'th neurons in the j'th layer of weights.  The input ``y`` is
-        the correct output value for the network.  This partial
-        derivative is computed numerically, not using backpropagation.
-        It's included as a test comparison to be used against the
-        computation done using backpropagation."""
-        # Construct two networks with the appropriate weight modified
-        delta = 0.00001 # amount to vary the weight by
-        net1 = Network(self.sizes)
-        net1.biases = [np.copy(bias) for bias in self.biases]
-        net1.weights = [np.copy(wt) for wt in self.weights]
-        net1.weights[j][(l, k)] += delta
-        net2 = Network(self.sizes)
-        net2.biases = [np.copy(bias) for bias in self.biases]
-        net2.weights = [np.copy(wt) for wt in self.weights]
-        net2.weights[j][(l, k)] -= delta
-        return (net1.cost(activation, y)-net2.cost(activation, y))/(2*delta)
 
     def error(self, training_data, regularization=0.01):
         training_error = sum(euclidean_error(self.feedforward(x)-y) 
@@ -174,7 +189,7 @@ class Network():
 
 #### Miscellaneous functions
 def sigmoid(z):
-    return 1.0/(1.0+np.exp(-z))
+    return (0.0 if z < -700 else 1.0/(1.0+np.exp(-z)))
 
 sigmoid_vec = np.vectorize(sigmoid)
 
@@ -202,17 +217,17 @@ def neural_network_classifier():
     training_data = zip(inputs, results)
     net = Network([784, 10])
     for j in xrange(10):
-        print net.error(training_data, regularization=0.001)
-        net.backprop(training_data, eta=0.1, regularization=0.001)
+        print net.error(training_data, regularization=0.01)
+        net.backprop(training_data, eta=0.5, regularization=0.01)
 
 #### Testing
 
-def test_backprop(n):
+def test_backprop(n, gradient_checking=False):
     net = Network([2, 2, 1])
     training_data = test_harness_training_data()
     for j in xrange(n):
         net.backprop(test_harness_training_data(), eta=0.1, 
-                     regularization=0.0001)
+                     regularization=0.0001, gradient_checking=gradient_checking)
         error = sum((net.feedforward(x)-y)**2/2 for x, y in training_data)
         print net.error(training_data, 0.0001)
     return net
