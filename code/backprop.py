@@ -180,12 +180,11 @@ class Network():
     def cost(self, x, y):
         return (self.feedforward(x)-y)**2 / 2.0
 
-    def error(self, training_data, regularization=0.01):
-        training_error = sum(euclidean_error(self.feedforward(x)-y) 
-                   for x, y in training_data)
-        regularization_error = regularization * sum(
-            np.sum(wt*wt) for wt in self.weights)/2.0
-        return training_error+regularization_error
+    def total_cost(self, training_data, regularization=0.01):
+        training_cost = sum(self.cost(x, y) for x, y in training_data)
+        regularization_cost = regularization * sum(
+            np.sum(w**2) for w in self.weights)/2.0
+        return training_cost+regularization_cost
 
 #### Miscellaneous functions
 def sigmoid(z):
@@ -207,9 +206,6 @@ def sigmoid_prime(z):
 
 sigmoid_prime_vec = np.vectorize(sigmoid_prime)
 
-def euclidean_error(delta):
-    return np.linalg.norm(delta)**2/2.0
-
 def vectorized_result(j):
     """ Return a 10-dimensional unit vector with a 1.0 in the jth
     position and zeroes elsewhere.  This is a convenience function
@@ -226,7 +222,7 @@ def neural_network_classifier():
     training_data = zip(inputs, results)
     net = Network([784, 10])
     for j in xrange(200):
-        print net.error(training_data, regularization=0.02)
+        print net.total_cost(training_data, regularization=0.02)
         net.backprop(training_data, eta=0.2, regularization=0.02)
     # test how well things worked
     test_inputs = [np.reshape(x, (784, 1)) for x in test_data[0]]
@@ -248,8 +244,7 @@ def test_backprop(n, gradient_checking=False):
     for j in xrange(n):
         net.backprop(test_harness_training_data(), eta=0.1, 
                      regularization=0.0001, gradient_checking=gradient_checking)
-        error = sum((net.feedforward(x)-y)**2/2 for x, y in training_data)
-        print net.error(training_data, 0.0001)
+        print net.total_cost(training_data, 0.0001)
     return net
 
 def test_feedforward():
