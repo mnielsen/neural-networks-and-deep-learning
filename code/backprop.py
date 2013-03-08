@@ -189,11 +189,20 @@ class Network():
 
 #### Miscellaneous functions
 def sigmoid(z):
-    return (0.0 if z < -700 else 1.0/(1.0+np.exp(-z)))
+    """The sigmoid function.  Note that it checks to see whether ``z``
+    is very negative, to avoid overflow errors in the exponential
+    function.  No corresponding test of being very positive is
+    necessary --- ordinary Python arithmetic will deal just fine with
+    that case."""
+    if z < -700:
+        return 0.0
+    else:
+        return 1.0/(1.0+np.exp(-z))
 
 sigmoid_vec = np.vectorize(sigmoid)
 
 def sigmoid_prime(z):
+    """Derivative of the sigmoid function."""
     return sigmoid(z)*(1-sigmoid(z))
 
 sigmoid_prime_vec = np.vectorize(sigmoid_prime)
@@ -216,9 +225,20 @@ def neural_network_classifier():
     results = [vectorized_result(y) for y in training_data[1]]
     training_data = zip(inputs, results)
     net = Network([784, 10])
-    for j in xrange(10):
-        print net.error(training_data, regularization=0.01)
-        net.backprop(training_data, eta=0.5, regularization=0.01)
+    for j in xrange(200):
+        print net.error(training_data, regularization=0.02)
+        net.backprop(training_data, eta=0.2, regularization=0.02)
+    # test how well things worked
+    test_inputs = [np.reshape(x, (784, 1)) for x in test_data[0]]
+    test_results = [np.argmax(net.feedforward(x)) for x in test_inputs]
+    actual_test_results = test_data[1]
+    print test_results[:20]
+    print actual_test_results[:20]
+    pdb.set_trace()
+    #correct = sum(int(guess_digit(image, avgs) == digit)
+    #              for image, digit in zip(test_data[0], test_data[1]))
+    #print "Baseline classifier using average darkness of image."
+    #print "%s of %s values correct." % (correct, len(test_data[1]))
 
 #### Testing
 
