@@ -109,23 +109,27 @@ class Network():
         return a
 
     def SGD(self, training_data, epochs, mini_batch_size,
-            eta, regularization):
+            eta, regularization, test_inputs, actual_test_results):
         """Train the neural network using mini-batch stochastic
         gradient descent .  The ``training_data`` is a list of tuples
         ``(x, y)``.  The other parameters are the number of epochs,
         the mini-batch size, the learning rate, and the regularization
         parameter."""
+        n = len(test_inputs)
         for j in xrange(epochs):
-            print "Epoch {}: {:.2f}".format(
-                j, 
-                self.total_cost(training_data, regularization=regularization))
             random.shuffle(training_data)
             mini_batches = [
-                training_data[j:j+mini_batch_size]
-                for j in xrange(0, len(training_data), mini_batch_size)]
+                training_data[k:k+mini_batch_size]
+                for k in xrange(0, len(training_data), mini_batch_size)]
             for mini_batch in mini_batches:
                 self.backprop(
                     mini_batch, eta=eta, regularization=regularization)
+            test_results = [np.argmax(self.feedforward(x)) for x in test_inputs]
+            print "Epoch {}: {} / {}".format(
+                j, 
+                sum(int(x == y) 
+                    for x, y in zip(test_results, actual_test_results)),
+                n)
 
     def backprop(self, training_data, eta=0.1, 
                  regularization=0.01, gradient_checking=False):
@@ -250,11 +254,8 @@ def neural_network_classifier(
     with 20 neurons."""
     training_data, test_inputs, actual_test_results = get_data()
     net = Network([784]+hidden_layers+[10])
-    net.SGD(training_data, epochs, mini_batch_size, eta, regularization)
-    test_results = [np.argmax(net.feedforward(x)) for x in test_inputs]
-    print "%s / %s correct" % (sum(
-            int(x == y) for x, y in zip(test_results, actual_test_results)), 
-                               len(test_results))
+    net.SGD(training_data, epochs, mini_batch_size, eta, regularization,
+            test_inputs, actual_test_results)
 
 def get_data():
     training_data, validation_data, test_data = load_data()
