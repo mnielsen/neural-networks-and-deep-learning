@@ -187,6 +187,20 @@ class Network():
             np.sum(w**2) for w in self.weights)/2.0
         return training_cost+regularization_cost
 
+    def train(self, training_data, epochs, mini_batch_size,
+              eta, regularization):
+        for j in xrange(epochs):
+            print "Epoch %s: %s" % (j, 
+                                    self.total_cost(training_data, 
+                                    regularization=regularization))
+            random.shuffle(training_data)
+            mini_batches = [
+                training_data[j:j+mini_batch_size]
+                for j in xrange(0, len(training_data), mini_batch_size)]
+            for mini_batch in mini_batches:
+                self.backprop(
+                    mini_batch, eta=eta, regularization=regularization)
+
 #### Miscellaneous functions
 def sigmoid(z):
     """The sigmoid function.  Note that it checks to see whether ``z``
@@ -222,24 +236,14 @@ def neural_network_classifier(epochs, mini_batch_size):
     results = [vectorized_result(y) for y in training_data[1]]
     training_data = zip(inputs, results)
     net = Network([784, 10])
-    for j in xrange(epochs):
-        print net.total_cost(training_data, regularization=0.001)
-        random.shuffle(training_data)
-        mini_batches = [training_data[j:j+mini_batch_size]
-                        for j in xrange(0, len(training_data), mini_batch_size)]
-        for mini_batch in mini_batches:
-            net.backprop(
-                random.sample(mini_batch, sample_size), 
-                eta=0.003, regularization=0.001)
+    net.train(training_data, epochs, mini_batch_size, 0.01, 0.001)
     # test how well things worked
     test_inputs = [np.reshape(x, (784, 1)) for x in test_data[0]]
-    test_results = [np.argmax(net.feedforward(x)) for x in test_inputs]
     actual_test_results = test_data[1]
-    print test_results[:20]
-    print actual_test_results[:20]
-    print "%s / %s" % (sum(int(x == y)
-                        for x, y in zip(test_results, actual_test_results)), 
-                       len(test_results))
+    test_results = [np.argmax(net.feedforward(x)) for x in test_inputs]
+    print "%s / %s correct" % (sum(
+            int(x == y) for x, y in zip(test_results, actual_test_results)), 
+                               len(test_results))
     pdb.set_trace()
 
 #### Testing
