@@ -10,6 +10,7 @@ handwritten digit recognizer."""
 from collections import defaultdict
 import cPickle
 import pdb
+import random
 
 # Third-party libraries
 import matplotlib
@@ -178,9 +179,9 @@ class Network():
         return net
         
     def cost(self, x, y):
-        return (self.feedforward(x)-y)**2 / 2.0
+        return np.sum((self.feedforward(x)-y)**2 / 2.0)
 
-    def total_cost(self, training_data, regularization=0.01):
+    def total_cost(self, training_data, regularization=0.001):
         training_cost = sum(self.cost(x, y) for x, y in training_data)
         regularization_cost = regularization * sum(
             np.sum(w**2) for w in self.weights)/2.0
@@ -215,26 +216,31 @@ def vectorized_result(j):
     return e
 
 #### Neural network MNIST classifier
-def neural_network_classifier():
+def neural_network_classifier(epochs, mini_batch_size):
     training_data, validation_data, test_data = load_data()
     inputs = [np.reshape(x, (784, 1)) for x in training_data[0]]
     results = [vectorized_result(y) for y in training_data[1]]
     training_data = zip(inputs, results)
     net = Network([784, 10])
-    for j in xrange(200):
-        print net.total_cost(training_data, regularization=0.02)
-        net.backprop(training_data, eta=0.2, regularization=0.02)
+    for j in xrange(epochs):
+        print net.total_cost(training_data, regularization=0.001)
+        random.shuffle(training_data)
+        mini_batches = [training_data[j:j+mini_batch_size]
+                        for j in xrange(0, len(training_data), mini_batch_size)]
+        for mini_batch in mini_batches:
+            net.backprop(
+                random.sample(mini_batch, sample_size), 
+                eta=0.003, regularization=0.001)
     # test how well things worked
     test_inputs = [np.reshape(x, (784, 1)) for x in test_data[0]]
     test_results = [np.argmax(net.feedforward(x)) for x in test_inputs]
     actual_test_results = test_data[1]
     print test_results[:20]
     print actual_test_results[:20]
+    print "%s / %s" % (sum(int(x == y)
+                        for x, y in zip(test_results, actual_test_results)), 
+                       len(test_results))
     pdb.set_trace()
-    #correct = sum(int(guess_digit(image, avgs) == digit)
-    #              for image, digit in zip(test_data[0], test_data[1]))
-    #print "Baseline classifier using average darkness of image."
-    #print "%s of %s values correct." % (correct, len(test_data[1]))
 
 #### Testing
 
