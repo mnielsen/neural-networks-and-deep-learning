@@ -102,6 +102,25 @@ class Network():
             a = sigmoid_vec(np.dot(w, a)+b)
         return a
 
+    def SGD(self, training_data, epochs, mini_batch_size,
+            eta, regularization):
+        """Train the neural network using mini-batch stochastic
+        gradient descent .  The ``training_data`` is a list of tuples
+        ``(x, y)``.  The other parameters are the number of epochs,
+        the mini-batch size, the learning rate, and the regularization
+        parameter."""
+        for j in xrange(epochs):
+            print "Epoch {}: {:f2}".format(
+                j, 
+                self.total_cost(training_data, regularization=regularization))
+            random.shuffle(training_data)
+            mini_batches = [
+                training_data[j:j+mini_batch_size]
+                for j in xrange(0, len(training_data), mini_batch_size)]
+            for mini_batch in mini_batches:
+                self.backprop(
+                    mini_batch, eta=eta, regularization=regularization)
+
     def backprop(self, training_data, eta=0.1, 
                  regularization=0.01, gradient_checking=False):
         """Update the network's weights and biases by applying a
@@ -187,19 +206,6 @@ class Network():
             np.sum(w**2) for w in self.weights)/2.0
         return training_cost+regularization_cost
 
-    def train(self, training_data, epochs, mini_batch_size,
-              eta, regularization):
-        for j in xrange(epochs):
-            print "Epoch %s: %s" % (j, 
-                                    self.total_cost(training_data, 
-                                    regularization=regularization))
-            random.shuffle(training_data)
-            mini_batches = [
-                training_data[j:j+mini_batch_size]
-                for j in xrange(0, len(training_data), mini_batch_size)]
-            for mini_batch in mini_batches:
-                self.backprop(
-                    mini_batch, eta=eta, regularization=regularization)
 
 #### Miscellaneous functions
 def sigmoid(z):
@@ -236,7 +242,8 @@ def neural_network_classifier(epochs, mini_batch_size):
     results = [vectorized_result(y) for y in training_data[1]]
     training_data = zip(inputs, results)
     net = Network([784, 10])
-    net.train(training_data, epochs, mini_batch_size, 0.01, 0.001)
+    # train the network
+    net.SGD(training_data, epochs, mini_batch_size, 0.01, 0.001)
     # test how well things worked
     test_inputs = [np.reshape(x, (784, 1)) for x in test_data[0]]
     actual_test_results = test_data[1]
