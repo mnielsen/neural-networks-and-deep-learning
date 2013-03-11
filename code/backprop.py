@@ -261,7 +261,7 @@ def get_data():
     inputs = [np.reshape(x, (784, 1)) for x in training_data[0]]
     results = [vectorized_result(y) for y in training_data[1]]
     training_data = zip(inputs, results)
-    test_inputs = np.reshape(x, (784, 1)) for x in test_data[0]]
+    test_inputs = [np.reshape(x, (784, 1)) for x in test_data[0]]
     return (training_data, test_inputs, test_data[1])
 
 #### Testing
