@@ -1,9 +1,12 @@
 """
-backprop
-~~~~~~~~
+mnist_classifier
+~~~~~~~~~~~~~~~~
 
-Uses backpropagation and stochastic gradient descent to implement a
-handwritten digit recognizer."""
+A classifier program for recognizing handwritten digits from the MNIST
+data set.  The program implements several different neural networks to
+classify digits.  Several baseline methods are also included -- an SVM
+classifier, and a naive baseline which classifies digits based on how
+dark they are."""
 
 #### Libraries
 # Standard library
@@ -16,7 +19,10 @@ import random
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
-from sklearn import svm
+try:
+    from sklearn import svm
+except ImportError: # will run without sklearn, but issues a warning
+    print "Warning: requires scikit-learn to run SVM baseline tests"
 
 #### Baseline: Average darkness classifier
 ####
@@ -110,7 +116,7 @@ class Network():
         the mini-batch size, the learning rate, and the regularization
         parameter."""
         for j in xrange(epochs):
-            print "Epoch {}: {:f2}".format(
+            print "Epoch {}: {:.2f}".format(
                 j, 
                 self.total_cost(training_data, regularization=regularization))
             random.shuffle(training_data)
@@ -236,22 +242,27 @@ def vectorized_result(j):
     return e
 
 #### Neural network MNIST classifier
-def neural_network_classifier(epochs, mini_batch_size):
-    training_data, validation_data, test_data = load_data()
-    inputs = [np.reshape(x, (784, 1)) for x in training_data[0]]
-    results = [vectorized_result(y) for y in training_data[1]]
-    training_data = zip(inputs, results)
-    net = Network([784, 10])
-    # train the network
-    net.SGD(training_data, epochs, mini_batch_size, 0.01, 0.001)
-    # test how well things worked
-    test_inputs = [np.reshape(x, (784, 1)) for x in test_data[0]]
-    actual_test_results = test_data[1]
+def neural_network_classifier(
+    hidden_layers, epochs, mini_batch_size, eta, regularization):
+    """``hidden_layers`` is a list containing the number of neurons in
+    each hidden layer.  With no hidden layers we have ``hidden_layers
+    = []``.  ``hidden_layers = [20]`` would be a single hidden layer
+    with 20 neurons."""
+    training_data, test_inputs, actual_test_results = get_data()
+    net = Network([784]+hidden_layers+[10])
+    net.SGD(training_data, epochs, mini_batch_size, eta, regularization)
     test_results = [np.argmax(net.feedforward(x)) for x in test_inputs]
     print "%s / %s correct" % (sum(
             int(x == y) for x, y in zip(test_results, actual_test_results)), 
                                len(test_results))
-    pdb.set_trace()
+
+def get_data():
+    training_data, validation_data, test_data = load_data()
+    inputs = [np.reshape(x, (784, 1)) for x in training_data[0]]
+    results = [vectorized_result(y) for y in training_data[1]]
+    training_data = zip(inputs, results)
+    test_inputs = np.reshape(x, (784, 1)) for x in test_data[0]]
+    return (training_data, test_inputs, test_data[1])
 
 #### Testing
 
