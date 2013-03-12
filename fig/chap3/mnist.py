@@ -16,7 +16,9 @@ import numpy as np
 def main():
     training_set, validation_set, test_set = load_data()
     images = get_images(training_set)
-    plot_2_and_1(images)
+    plot_features(images[1])
+    #plot_top_left(images[1])
+    #plot_2_and_1(images)
     #plot_images_together(images)
     #plot_images_separately(images)
 
@@ -53,6 +55,41 @@ def plot_2_and_1(images):
     plt.yticks(np.array([]))
     ax = fig.add_subplot(1, 2, 2)
     ax.matshow(images[3], cmap = matplotlib.cm.binary)
+    plt.xticks(np.array([]))
+    plt.yticks(np.array([]))
+    plt.show()
+
+def plot_top_left(image):
+    "Plot the top left of ``image``."
+    image[14:,:] = np.zeros((14,28))
+    image[:,14:] = np.zeros((28,14))
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    ax.matshow(image, cmap = matplotlib.cm.binary)
+    plt.xticks(np.array([]))
+    plt.yticks(np.array([]))
+    plt.show()
+
+def plot_features(image):
+    "Plot the top right, bottom left, and bottom right of ``image``."
+    image_1, image_2, image_3 = np.copy(image), np.copy(image), np.copy(image)
+    image_1[:,:14] = np.zeros((28,14))
+    image_1[14:,:] = np.zeros((14,28))
+    image_2[:,14:] = np.zeros((28,14))
+    image_2[:14,:] = np.zeros((14,28))
+    image_3[:14,:] = np.zeros((14,28))
+    image_3[:,:14] = np.zeros((28,14))
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 3, 1)
+    ax.matshow(image_1, cmap = matplotlib.cm.binary)
+    plt.xticks(np.array([]))
+    plt.yticks(np.array([]))
+    ax = fig.add_subplot(1, 3, 2)
+    ax.matshow(image_2, cmap = matplotlib.cm.binary)
+    plt.xticks(np.array([]))
+    plt.yticks(np.array([]))
+    ax = fig.add_subplot(1, 3, 3)
+    ax.matshow(image_3, cmap = matplotlib.cm.binary)
     plt.xticks(np.array([]))
     plt.yticks(np.array([]))
     plt.show()
