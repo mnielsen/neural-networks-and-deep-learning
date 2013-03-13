@@ -73,6 +73,8 @@ class Network():
         ``(x, y)``.  The other parameters are the number of epochs,
         the mini-batch size, the learning rate, and the regularization
         parameter."""
+        if test:
+            n = len(test_inputs)
         for j in xrange(epochs):
             random.shuffle(training_data)
             mini_batches = [
@@ -82,14 +84,13 @@ class Network():
                 self.backprop(
                     mini_batch, eta=eta, regularization=regularization)
             if test:
-                self.test(test_inputs, actual_test_results)
+                print "Epoch {}: {} / {}".format(
+                    j, self.test(test_inputs, actual_test_results), n)
 
     def test(self, test_inputs, actual_test_results):
         test_results = [np.argmax(self.feedforward(x)) for x in test_inputs]
-        print "Epoch {}: {} / {}".format(
-            j, 
-            sum(int(x == y) for x, y in zip(test_results, actual_test_results)),
-            len(test_inputs))
+        return sum(int(x == y) 
+                   for x, y in zip(test_results, actual_test_results))
 
     def backprop(self, training_data, eta=0.1, 
                  regularization=0.01, gradient_checking=False):
