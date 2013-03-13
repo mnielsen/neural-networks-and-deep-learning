@@ -29,19 +29,11 @@ import numpy as np
 
 #### Main program
 def main():
-    neural_network_classifier([20], 30, 10, 0.01, 0.001)
-
-#### Neural network MNIST classifier
-def neural_network_classifier(
-    hidden_layers, epochs, mini_batch_size, eta, regularization):
-    """``hidden_layers`` is a list containing the number of neurons in
-    each hidden layer.  With no hidden layers we have ``hidden_layers
-    = []``.  ``hidden_layers = [20]`` would be a single hidden layer
-    with 20 neurons."""
     training_data, test_inputs, actual_test_results = get_data()
-    net = Network([784]+hidden_layers+[10])
-    net.SGD(training_data, epochs, mini_batch_size, eta, regularization,
-            test_inputs, actual_test_results)
+    net = Network([784, 20, 10])
+    net.SGD(training_data, 30, 10, 0.01, 0.001, 
+            test=True, test_inputs=test_inputs, 
+            actual_test_results=actual_test_results)
 
 def get_data():
     training_data, validation_data, test_data = mnist_loader.load_data()
@@ -73,14 +65,14 @@ class Network():
             a = sigmoid_vec(np.dot(w, a)+b)
         return a
 
-    def SGD(self, training_data, epochs, mini_batch_size,
-            eta, regularization, test_inputs, actual_test_results):
+    def SGD(self, training_data, epochs, mini_batch_size, eta,
+            regularization, test=False, test_inputs=None, 
+            actual_test_results=None):
         """Train the neural network using mini-batch stochastic
         gradient descent .  The ``training_data`` is a list of tuples
         ``(x, y)``.  The other parameters are the number of epochs,
         the mini-batch size, the learning rate, and the regularization
         parameter."""
-        n = len(test_inputs)
         for j in xrange(epochs):
             random.shuffle(training_data)
             mini_batches = [
@@ -89,12 +81,15 @@ class Network():
             for mini_batch in mini_batches:
                 self.backprop(
                     mini_batch, eta=eta, regularization=regularization)
-            test_results = [np.argmax(self.feedforward(x)) for x in test_inputs]
-            print "Epoch {}: {} / {}".format(
-                j, 
-                sum(int(x == y) 
-                    for x, y in zip(test_results, actual_test_results)),
-                n)
+            if test:
+                self.test(test_inputs, actual_test_results)
+
+    def test(self, test_inputs, actual_test_results):
+        test_results = [np.argmax(self.feedforward(x)) for x in test_inputs]
+        print "Epoch {}: {} / {}".format(
+            j, 
+            sum(int(x == y) for x, y in zip(test_results, actual_test_results)),
+            len(test_inputs))
 
     def backprop(self, training_data, eta=0.1, 
                  regularization=0.01, gradient_checking=False):
@@ -213,15 +208,6 @@ def vectorized_result(j):
 
 #### Testing
 
-def test_backprop(n, gradient_checking=False):
-    net = Network([2, 2, 1])
-    training_data = test_harness_training_data()
-    for j in xrange(n):
-        net.backprop(test_harness_training_data(), eta=0.1, 
-                     regularization=0.0001, gradient_checking=gradient_checking)
-        print net.total_cost(training_data, 0.0001)
-    return net
-
 def test_feedforward():
     """ Test the Network.feedforward method.  We do this by setting up
     a 3-layer network to compute the XOR function, and verifying that
@@ -244,6 +230,15 @@ def test_feedforward():
             print "Test failed"
             failure = True
     print "\nOne or more tests failed" if failure else "\nAll tests passed"
+
+def test_backprop(n, gradient_checking=False):
+    net = Network([2, 2, 1])
+    training_data = test_harness_training_data()
+    for j in xrange(n):
+        net.backprop(test_harness_training_data(), eta=0.1, 
+                     regularization=0.0001, gradient_checking=gradient_checking)
+        print net.total_cost(training_data, 0.0001)
+    return net
     
 def test_harness_training_data():
     "Return a test harness containing training data for XOR."
