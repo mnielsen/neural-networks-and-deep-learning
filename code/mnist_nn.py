@@ -3,7 +3,16 @@ mnist_nn
 ~~~~~~~~
 
 A classifier program which uses a neural network to recognize
-handwritten digits from the MNIST data set."""
+handwritten digits from the MNIST data set.
+
+As written, the program uses a neural network with 20 hidden neurons
+to classify the MNIST test data.  During the training stage it uses 30
+training epochs, stochastic gradient descent with a mini-batch size of
+10, a learning rate of 0.01, and a regularization parameter of
+0.001.
+
+All these parameters are easily modified, and, in general, it should
+be easy to adapt the code to other purposes."""
 
 #### Libraries
 # Standard library
@@ -15,9 +24,32 @@ import mnist_loader # to load the MNIST data.  For details on the
                     # code
 
 # Third-party libraries
-import matplotlib
-import matplotlib.pyplot as plt
 import numpy as np
+
+
+#### Main program
+def main():
+    neural_network_classifier([20], 30, 10, 0.01, 0.001)
+
+#### Neural network MNIST classifier
+def neural_network_classifier(
+    hidden_layers, epochs, mini_batch_size, eta, regularization):
+    """``hidden_layers`` is a list containing the number of neurons in
+    each hidden layer.  With no hidden layers we have ``hidden_layers
+    = []``.  ``hidden_layers = [20]`` would be a single hidden layer
+    with 20 neurons."""
+    training_data, test_inputs, actual_test_results = get_data()
+    net = Network([784]+hidden_layers+[10])
+    net.SGD(training_data, epochs, mini_batch_size, eta, regularization,
+            test_inputs, actual_test_results)
+
+def get_data():
+    training_data, validation_data, test_data = mnist_loader.load_data()
+    inputs = [np.reshape(x, (784, 1)) for x in training_data[0]]
+    results = [vectorized_result(y) for y in training_data[1]]
+    training_data = zip(inputs, results)
+    test_inputs = [np.reshape(x, (784, 1)) for x in test_data[0]]
+    return (training_data, test_inputs, test_data[1])
 
 class Network():
 
@@ -178,25 +210,6 @@ def vectorized_result(j):
     e[j] = 1.0
     return e
 
-#### Neural network MNIST classifier
-def neural_network_classifier(
-    hidden_layers, epochs, mini_batch_size, eta, regularization):
-    """``hidden_layers`` is a list containing the number of neurons in
-    each hidden layer.  With no hidden layers we have ``hidden_layers
-    = []``.  ``hidden_layers = [20]`` would be a single hidden layer
-    with 20 neurons."""
-    training_data, test_inputs, actual_test_results = get_data()
-    net = Network([784]+hidden_layers+[10])
-    net.SGD(training_data, epochs, mini_batch_size, eta, regularization,
-            test_inputs, actual_test_results)
-
-def get_data():
-    training_data, validation_data, test_data = mnist_loader.load_data()
-    inputs = [np.reshape(x, (784, 1)) for x in training_data[0]]
-    results = [vectorized_result(y) for y in training_data[1]]
-    training_data = zip(inputs, results)
-    test_inputs = [np.reshape(x, (784, 1)) for x in test_data[0]]
-    return (training_data, test_inputs, test_data[1])
 
 #### Testing
 
@@ -239,3 +252,6 @@ def test_harness_training_data():
         (np.array([[0.0], [1.0]]), np.array([[1.0]])),
         (np.array([[1.0], [0.0]]), np.array([[1.0]])),
         (np.array([[1.0], [1.0]]), np.array([[0.0]]))]
+
+if __name__ == "__main__":
+    main()
