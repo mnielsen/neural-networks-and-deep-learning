@@ -22,8 +22,9 @@ from naive ideas."""
 from collections import defaultdict
 
 # My libraries
-import mnist_loader # to load the MNIST data, for details on the format see
-                    # the module
+import mnist_loader # to load the MNIST data. For details on the
+                    # format the data is loaded in, see the module's
+                    # code
 
 def main():
     training_data, validation_data, test_data = mnist_loader.load_data()
