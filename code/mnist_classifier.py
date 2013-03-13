@@ -11,9 +11,10 @@ dark they are."""
 #### Libraries
 # Standard library
 from collections import defaultdict
-import cPickle
-import pdb
 import random
+
+# My libraries
+import mnist_loader
 
 # Third-party libraries
 import matplotlib
@@ -51,7 +52,7 @@ def guess_digit(image, avg_darkness):
     return min(distance, key=distance.get)
 
 def test_average_darkness_baseline():
-    training_data, validation_data, test_data = load_data()
+    training_data, validation_data, test_data = mnist_loader.load_data()
     avgs = avg_darkness(training_data)
     correct = sum(int(guess_digit(image, avgs) == digit)
                   for image, digit in zip(test_data[0], test_data[1]))
@@ -64,7 +65,7 @@ def test_svm_baseline():
     Use an SVM to classify MNIST digits.  Print the number of digits
     which are classified correctly, and draw a figure showing the
     first ten images which are misclassified."""
-    training_data, validation_data, test_data = load_data()
+    training_data, validation_data, test_data = mnist_loader.load_data()
     clf = svm.SVC()
     clf.fit(training_data[0], training_data[1])
     predictions = [int(v) for v in clf.predict(test_data[0])]
@@ -258,7 +259,7 @@ def neural_network_classifier(
             test_inputs, actual_test_results)
 
 def get_data():
-    training_data, validation_data, test_data = load_data()
+    training_data, validation_data, test_data = mnist_loader.load_data()
     inputs = [np.reshape(x, (784, 1)) for x in training_data[0]]
     results = [vectorized_result(y) for y in training_data[1]]
     training_data = zip(inputs, results)
@@ -306,14 +307,3 @@ def test_harness_training_data():
         (np.array([[0.0], [1.0]]), np.array([[1.0]])),
         (np.array([[1.0], [0.0]]), np.array([[1.0]])),
         (np.array([[1.0], [1.0]]), np.array([[0.0]]))]
-
-
-#### Miscellanea
-def load_data():
-    """ Return the MNIST data as a tuple containing the training data,
-    the validation data, and the test data."""
-    # TODO: Ask Ng if I can host it (where?)
-    f = open('mnist.pkl', 'rb')
-    training_data, validation_data, test_data = cPickle.load(f)
-    f.close()
-    return (training_data, validation_data, test_data)
