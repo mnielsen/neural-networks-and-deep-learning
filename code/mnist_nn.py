@@ -19,7 +19,7 @@ import numpy as np
 
 #### Program parameters
 NETWORK = [784, 20, 10] # number of neurons in each layer
-EPOCHS = 3
+EPOCHS = 30
 MINI_BATCH_SIZE = 10
 ETA = 0.01
 LMBDA = 0.001
