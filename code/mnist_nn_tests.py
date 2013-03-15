@@ -2,7 +2,8 @@
 mnist_nn_tests
 ~~~~~~~~~~~~~~
 
-A few simple tests for the module mnist_nn.py."""
+A few simple tests for the module mnist_nn, using neural networks to
+compute the XOR function."""
 
 #### Libraries
 # My library
@@ -30,6 +31,9 @@ def test_feedforward():
     return net
 
 def test_SGD():
+    """ Test the Network.SGD method, using it to train a 3-layer
+    network to compute the XOR function, and then verifying that the
+    outputs are as they should be."""
     print "\n\nTesting stochastic gradient descent to find a network for XOR."
     net = Network([2, 2, 1])
     training_data = test_harness_training_data()
@@ -38,8 +42,10 @@ def test_SGD():
     return net
 
 def evaluate(net, test_data):
-    """Evaluate ``net`` against the ``test_data``, comparing actual outputs
-    to desired outputs."""
+    """Evaluate ``net`` against the ``test_data``, comparing actual
+    outputs to desired outputs.  We allow a tolerance of 0.2 in the
+    outputs, so, for example, an output of 0.9 is interpreted as being
+    acceptably close to 1.0."""
     failure = False # flag to indicate whether any tests have failed
     for x, y in test_data:
         output = net.feedforward(x)
