@@ -18,8 +18,8 @@ import mnist_loader # to load the MNIST data
 import numpy as np
 
 #### Program parameters
-NETWORK = [784, 100, 30, 10] # number of neurons in each layer
-EPOCHS = 30
+NETWORK = [784, 20, 10] # number of neurons in each layer
+EPOCHS = 3
 MINI_BATCH_SIZE = 10
 ETA = 0.01
 LMBDA = 0.001
@@ -52,7 +52,7 @@ class Network():
                         for x, y in zip(sizes[:-1], sizes[1:])]
 
     def feedforward(self, a):
-        "Return the output of the network if `a` is input."
+        "Return the output of the network if ``a`` is input."
         for b, w in zip(self.biases, self.weights):
             a = sigmoid_vec(np.dot(w, a)+b)
         return a
@@ -64,11 +64,11 @@ class Network():
         ``(x, y)`` representing the training inputs and the desired
         outputs.  The other non-optional parameters are
         self-explanatory.  Set ``test`` to ``True`` to evaluate the
-        network against the test training data after each epoch, and
-        to print out partial progress.  This is useful for tracking
-        partial progress, but slows things down quite a bit.  If
-        ``test`` is set, then appropriate ``test_inputs`` and
-        ``actual_test_results`` must also be supplied.
+        network against the test data after each epoch, and to print
+        out partial progress.  This is useful for tracking progress,
+        but slows things down substantially.  If ``test`` is set, then
+        appropriate ``test_inputs`` and ``actual_test_results`` must
+        also be supplied.
         """
         if test: n = len(test_inputs)
         for j in xrange(epochs):
@@ -85,10 +85,12 @@ class Network():
     def backprop(self, training_data, eta, lmbda, gradient_checking=False):
         """Update the network's weights and biases by applying a
         single iteration of gradient descent using backpropagation.
-        The ``training_data`` is a list of tuples ``(x, y)``.  The
-        other non-optional parameters are self-explanatory.  The
-        optional flag ``gradient_checking`` determines whether or not
-        gradient checking is done."""
+        The ``training_data`` is a list of tuples ``(x, y)``.  It need
+        not include the entire training data set --- it might be a
+        mini-batch, or even a single training example.  The other
+        non-optional parameters are self-explanatory.  The optional
+        flag ``gradient_checking`` determines whether or not gradient
+        checking is done."""
         nabla_b = [np.zeros(b.shape) for b in self.biases]
         nabla_w = [np.zeros(w.shape) for w in self.weights]
         for x, y in training_data:
@@ -102,7 +104,7 @@ class Network():
                 activation = sigmoid_vec(z)
                 activations.append(activation)
             # backward pass
-            delta = cost_derivative(activations[-1], y) * \
+            delta = self.cost_derivative(activations[-1], y) * \
                 sigmoid_prime_vec(zs[-1])
             nabla_b[-1] += delta
             nabla_w[-1] += np.dot(delta, np.transpose(activations[-2]))
@@ -140,9 +142,9 @@ class Network():
         # Gradient check the biases
         gradient_check_nabla_b = np.zeros((self.sizes[-l], 1))
         for j in xrange(self.sizes[-l]):
-            net1 = self.copy()
+            net1 = self._copy()
             net1.biases[-l][(j,0)] += d
-            net2 = self.copy()
+            net2 = self._copy()
             net2.biases[-l][(j,0)] -= d
             gradient_check_nabla_b[j] = (net1.cost(x, y)-net2.cost(x, y))/(2*d)
         print "Squared Euclidean error in the gradient for biases: %s" % \
@@ -151,16 +153,16 @@ class Network():
         gradient_check_nabla_w = np.zeros((self.sizes[-l], self.sizes[-l-1]))
         for j in xrange(self.sizes[-l]):
             for k in xrange(self.sizes[-l-1]):
-                net1 = self.copy()
+                net1 = self._copy()
                 net1.weights[-l][(j,k)] += d
-                net2 = self.copy()
+                net2 = self._copy()
                 net2.weights[-l][(j,k)] -= d
                 gradient_check_nabla_w[j, k] = \
                     (net1.cost(x, y)-net2.cost(x, y))/(2*d)
         print "Squared Euclidean error in the gradient for weights: %s" % \
             np.sum((backprop_nabla_w-gradient_check_nabla_w)**2)
 
-    def copy(self):
+    def _copy(self):
         "Return a copy of ``self``, with the same biases and weights."
         net = Network(self.sizes)
         net.biases = [np.copy(b) for b in self.biases]
@@ -168,21 +170,28 @@ class Network():
         return net
 
     def evaluate(self, test_inputs, actual_test_results):
+        """Return the number of ``test_inputs`` for which the neural
+        network outputs the correct result, i.e., the same result as
+        given in ``actual_test_results``.  Note that the neural
+        network's output is assumed to be the index (0...9) of
+        whichever neuron in the final layer has the highest
+        activation."""
         test_results = [np.argmax(self.feedforward(x)) for x in test_inputs]
         return sum(int(x == y) 
                    for x, y in zip(test_results, actual_test_results))
         
     def cost(self, x, y):
+        """Return the quadratic cost associated to the network, with
+        input ``x`` and desired output ``y``.  Note that there is no
+        regularization."""
         return np.sum((self.feedforward(x)-y)**2 / 2.0)
 
-    def cost_derivative(output_activations, y):
+    def cost_derivative(self, output_activations, y):
+        """Return the vector of partial derivatives \partial C_x /
+        \partial a for the output activations, ``a``.  For the
+        quadratic cost this is just the difference between the output
+        activations and the desired output, ``y``."""
         return (output_activations-y) 
-
-    def total_cost(self, training_data, regularization=0.001):
-        training_cost = sum(self.cost(x, y) for x, y in training_data)
-        regularization_cost = regularization * sum(
-            np.sum(w**2) for w in self.weights)/2.0
-        return training_cost+regularization_cost
 
 #### Miscellaneous functions
 def load_data():
@@ -216,13 +225,10 @@ def load_data():
 def sigmoid(z):
     """The sigmoid function.  Note that it checks to see whether ``z``
     is very negative, to avoid overflow errors in the exponential
-    function.  No corresponding test of being very positive is
-    necessary --- ordinary Python arithmetic will deal just fine with
-    that case."""
-    if z < -700:
-        return 0.0
-    else:
-        return 1.0/(1.0+np.exp(-z))
+    function.  No corresponding test of ``z`` being very positive is
+    necessary --- ordinary Python arithmetic deals just fine with that
+    case."""
+    return 0.0 if z < -700 else 1.0/(1.0+np.exp(-z))
 
 sigmoid_vec = np.vectorize(sigmoid)
 
@@ -234,54 +240,12 @@ sigmoid_prime_vec = np.vectorize(sigmoid_prime)
 
 def vectorized_result(j):
     """ Return a 10-dimensional unit vector with a 1.0 in the jth
-    position and zeroes elsewhere.  This is a convenience function
-    which is used to convert XXX."""
+    position and zeroes elsewhere.  This is used to convert a digit
+    (0...9) into a corresponding desired output from the neural
+    network."""
     e = np.zeros((10, 1))
     e[j] = 1.0
     return e
-
-
-#### Testing
-
-def test_feedforward():
-    """ Test the Network.feedforward method.  We do this by setting up
-    a 3-layer network to compute the XOR function, and verifying that
-    the outputs are as they should be."""
-    net = Network([2, 2, 1])
-    net.biases = [np.array([[-10.0], [10.0]]),
-                  np.array([[10.0]])]
-    net.weights = [np.array([[20.0, -20.0], [20.0, -20.0]]),
-                   np.array([[20.0, -20.0]])]
-    failure = False # flag to indicate whether any tests have failed
-    print "Testing a neural network to compute the XOR function"
-    for x, y in test_harness_training_data():
-        output = net.feedforward(x)
-        print "\nInput:\n%s" % x
-        print "Expected output: {0:.3f}".format(float(y))
-        print "Actual output: {0:.3f}".format(float(output))
-        if abs(output - y) < 0.001:
-            print "Test passed"
-        else:
-            print "Test failed"
-            failure = True
-    print "\nOne or more tests failed" if failure else "\nAll tests passed"
-
-def test_backprop(n, gradient_checking=False):
-    net = Network([2, 2, 1])
-    training_data = test_harness_training_data()
-    for j in xrange(n):
-        net.backprop(test_harness_training_data(), eta=0.1, 
-                     regularization=0.0001, gradient_checking=gradient_checking)
-        print net.total_cost(training_data, 0.0001)
-    return net
-    
-def test_harness_training_data():
-    "Return a test harness containing training data for XOR."
-    return [
-        (np.array([[0.0], [0.0]]), np.array([[0.0]])),
-        (np.array([[0.0], [1.0]]), np.array([[1.0]])),
-        (np.array([[1.0], [0.0]]), np.array([[1.0]])),
-        (np.array([[1.0], [1.0]]), np.array([[0.0]]))]
 
 if __name__ == "__main__":
     main()
