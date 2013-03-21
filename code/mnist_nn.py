@@ -9,6 +9,7 @@ should be easily adaptable to other purposes."""
 
 #### Libraries
 # Standard library
+import pdb
 import random
 
 # My libraries
@@ -18,19 +19,32 @@ import mnist_loader # to load the MNIST data
 import numpy as np
 
 #### Program parameters
-NETWORK = [784, 20, 10] # number of neurons in each layer
-EPOCHS = 30
+NETWORK = [784, 100, 10] # number of neurons in each layer
 MINI_BATCH_SIZE = 10
 ETA = 0.01
-LMBDA = 0.001
+LMBDA = 0.001 # 001
 
 #### Main program
 def main():
     training_data, test_inputs, actual_test_results = load_data()
     net = Network(NETWORK)
-    net.SGD(training_data, EPOCHS, MINI_BATCH_SIZE, ETA, LMBDA,
-            test=True, test_inputs=test_inputs, 
+    net.SGD(training_data, 30, MINI_BATCH_SIZE, 
+            ETA, LMBDA,test=True, test_inputs=test_inputs, 
             actual_test_results=actual_test_results)
+    training_results = [np.argmax(net.feedforward(x[0])) for x in 
+                        training_data]
+    actual_training_results = [np.argmax(x[1]) for x in training_data]
+    n = sum(int(x == y) 
+            for x, y in zip(training_results, actual_training_results))
+    print n
+
+    #for size in [50000]: # 5000, 7500, 10000, 15000, 20000, 25000, 30000, 
+                 # 35000, 40000, 45000, 50000]:
+    #    net = Network(NETWORK)
+    #    print "\n\nSize: %s" % size
+    #    net.SGD(training_data[:size], 7000000 / size, MINI_BATCH_SIZE, 
+    #            ETA, LMBDA,test=True, test_inputs=test_inputs, 
+    #            actual_test_results=actual_test_results)
 
 class Network():
 

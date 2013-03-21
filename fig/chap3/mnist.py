@@ -16,11 +16,7 @@ import numpy as np
 def main():
     training_set, validation_set, test_set = load_data()
     images = get_images(training_set)
-    plot_features(images[1])
-    #plot_top_left(images[1])
-    #plot_2_and_1(images)
-    #plot_images_together(images)
-    #plot_images_separately(images)
+    plot_mnist_digit(images[0])
 
 #### Plotting
 def plot_images_together(images):
@@ -44,6 +40,15 @@ def plot_images_separately(images):
         ax.matshow(images[j-1], cmap = matplotlib.cm.binary)
         plt.xticks(np.array([]))
         plt.yticks(np.array([]))
+    plt.show()
+
+def plot_mnist_digit(image):
+    """ Plot a single MNIST image."""
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    ax.matshow(image, cmap = matplotlib.cm.binary)
+    plt.xticks(np.array([]))
+    plt.yticks(np.array([]))
     plt.show()
 
 def plot_2_and_1(images):
