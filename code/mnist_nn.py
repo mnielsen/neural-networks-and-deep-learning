@@ -9,7 +9,6 @@ should be easily adaptable to other purposes."""
 
 #### Libraries
 # Standard library
-import pdb
 import random
 
 # My libraries
@@ -19,21 +18,21 @@ import mnist_loader # to load the MNIST data
 import numpy as np
 
 #### Program parameters
-NETWORK = [784, 100, 10] # number of neurons in each layer
+NETWORK = [784, 20, 10] # number of neurons in each layer
 MINI_BATCH_SIZE = 10
 ETA = 0.01
-LMBDA = 0.001 # 001
+LMBDA = 0.02 # 001
 
 #### Main program
 def main():
     training_data, test_inputs, actual_test_results = load_data()
     net = Network(NETWORK)
-    net.SGD(training_data, 30, MINI_BATCH_SIZE, 
+    net.SGD(training_data[:2500], 600, MINI_BATCH_SIZE, 
             ETA, LMBDA,test=True, test_inputs=test_inputs, 
             actual_test_results=actual_test_results)
     training_results = [np.argmax(net.feedforward(x[0])) for x in 
-                        training_data]
-    actual_training_results = [np.argmax(x[1]) for x in training_data]
+                        training_data[:2500]]
+    actual_training_results = [np.argmax(x[1]) for x in training_data[:2500]]
     n = sum(int(x == y) 
             for x, y in zip(training_results, actual_training_results))
     print n
