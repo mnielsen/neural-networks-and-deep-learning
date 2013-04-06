@@ -1,49 +1,19 @@
 """
-mnist_nn
+backprop
 ~~~~~~~~
 
-A classifier program which trains a neural network using data from the
-MNIST training set of handwritten digits, and then evaluates
-performance using the MNIST test data set.  In general, the code
-should be easily adaptable to other purposes."""
+A module to implement the stochastic gradient descent learning
+algorithm for a neural network.  Gradients are calculated using
+backpropagation.  Note that I have focused on making the code simple,
+easily readable, and easily modifiable.  It is not optimized, and
+omits many desirable features."""
 
 #### Libraries
 # Standard library
 import random
 
-# My libraries
-import mnist_loader # to load the MNIST data
-
 # Third-party libraries
 import numpy as np
-
-#### Program parameters
-NETWORK = [784, 20, 10] # number of neurons in each layer
-MINI_BATCH_SIZE = 10
-ETA = 0.01
-LMBDA = 0.02 # 001
-
-#### Main program
-def main():
-    training_data, test_inputs, actual_test_results = load_data()
-    net = Network(NETWORK)
-    net.SGD(training_data[:2500], 600, MINI_BATCH_SIZE, 
-            ETA, LMBDA,test=True, test_inputs=test_inputs, 
-            actual_test_results=actual_test_results)
-    training_results = [np.argmax(net.feedforward(x[0])) for x in 
-                        training_data[:2500]]
-    actual_training_results = [np.argmax(x[1]) for x in training_data[:2500]]
-    n = sum(int(x == y) 
-            for x, y in zip(training_results, actual_training_results))
-    print n
-
-    #for size in [50000]: # 5000, 7500, 10000, 15000, 20000, 25000, 30000, 
-                 # 35000, 40000, 45000, 50000]:
-    #    net = Network(NETWORK)
-    #    print "\n\nSize: %s" % size
-    #    net.SGD(training_data[:size], 7000000 / size, MINI_BATCH_SIZE, 
-    #            ETA, LMBDA,test=True, test_inputs=test_inputs, 
-    #            actual_test_results=actual_test_results)
 
 class Network():
 
@@ -186,9 +156,8 @@ class Network():
         """Return the number of ``test_inputs`` for which the neural
         network outputs the correct result, i.e., the same result as
         given in ``actual_test_results``.  Note that the neural
-        network's output is assumed to be the index (0...9) of
-        whichever neuron in the final layer has the highest
-        activation."""
+        network's output is assumed to be the index of whichever
+        neuron in the final layer has the highest activation."""
         test_results = [np.argmax(self.feedforward(x)) for x in test_inputs]
         return sum(int(x == y) 
                    for x, y in zip(test_results, actual_test_results))
@@ -197,7 +166,7 @@ class Network():
         """Return the quadratic cost associated to the network, with
         input ``x`` and desired output ``y``.  Note that there is no
         regularization."""
-        return np.sum((self.feedforward(x)-y)**2 / 2.0)
+        return np.sum((self.feedforward(x)-y)**2)/2.0
 
     def cost_derivative(self, output_activations, y):
         """Return the vector of partial derivatives \partial C_x /
@@ -206,35 +175,16 @@ class Network():
         activations and the desired output, ``y``."""
         return (output_activations-y) 
 
+    def evaluate_training_results(self, training_data):
+        """Return the number of elements of the ``training_data`` that
+        are correctly classified."""
+        training_results = [np.argmax(self.feedforward(x[0])) for x in 
+                            training_data]
+        actual_training_results = [np.argmax(x[1]) for x in training_data]
+        return sum(int(x == y) 
+                   for x, y in zip(training_results, actual_training_results))
+
 #### Miscellaneous functions
-def load_data():
-    """Return a tuple containing ``(training_data, test_inputs,
-    actual_test_results)`` from the MNIST data.  Makes use of
-    ``mnist_loader.load_data()``, but does some additional processing
-    to put the data in a useful format.  Consult the ``mnist_loader``
-    code for more on the format used by that module.
-
-    ``training_data`` is a list containing 50,000 2-tuples ``(x, y)``.
-    ``x`` is a 784-dimensional numpy.ndarray containing the input
-    image.  ``y`` is a 10-dimensional numpy.ndarray representing the
-    unit vector corresponding to the correct digit for ``x``.
-
-    ``test_inputs`` is a list containing 10,000 x 784-dimensional
-    numpy.ndarray objects, representing test images.
-
-    ``actual_test_results`` is a list containing the 10,000 digit
-    values (integers) corresponding to the ``test_inputs``. 
-
-    Obviously, we're using slightly different formats for the training
-    and test data.  These formats turn out to be the most convenient
-    for use elsewhere in the code."""
-    training_data, validation_data, test_data = mnist_loader.load_data()
-    inputs = [np.reshape(x, (784, 1)) for x in training_data[0]]
-    results = [vectorized_result(y) for y in training_data[1]]
-    training_data = zip(inputs, results)
-    test_inputs = [np.reshape(x, (784, 1)) for x in test_data[0]]
-    return (training_data, test_inputs, test_data[1])
-
 def sigmoid(z):
     """The sigmoid function.  Note that it checks to see whether ``z``
     is very negative, to avoid overflow errors in the exponential
@@ -250,15 +200,3 @@ def sigmoid_prime(z):
     return sigmoid(z)*(1-sigmoid(z))
 
 sigmoid_prime_vec = np.vectorize(sigmoid_prime)
-
-def vectorized_result(j):
-    """ Return a 10-dimensional unit vector with a 1.0 in the jth
-    position and zeroes elsewhere.  This is used to convert a digit
-    (0...9) into a corresponding desired output from the neural
-    network."""
-    e = np.zeros((10, 1))
-    e[j] = 1.0
-    return e
-
-if __name__ == "__main__":
-    main()

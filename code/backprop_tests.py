@@ -1,13 +1,13 @@
 """
-mnist_nn_tests
+backprop_tests
 ~~~~~~~~~~~~~~
 
-A few simple tests for the module mnist_nn, using neural networks to
+A few simple tests for the module backprop, using neural networks to
 compute the XOR function."""
 
 #### Libraries
 # My library
-from mnist_nn import Network
+from backprop import Network
 
 # Third-party libraries
 import numpy as np
