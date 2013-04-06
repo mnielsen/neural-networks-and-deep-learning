@@ -65,15 +65,13 @@ class Network():
                 print "Epoch {}: {} / {}".format(
                     j, self.evaluate(test_inputs, actual_test_results), n)
 
-    def backprop(self, training_data, eta, lmbda, gradient_checking=False):
+    def backprop(self, training_data, eta, lmbda):
         """Update the network's weights and biases by applying a
         single iteration of gradient descent using backpropagation.
         The ``training_data`` is a list of tuples ``(x, y)``.  It need
         not include the entire training data set --- it might be a
         mini-batch, or even a single training example.  The other
-        non-optional parameters are self-explanatory.  The optional
-        flag ``gradient_checking`` determines whether or not gradient
-        checking is done."""
+        non-optional parameters are self-explanatory."""
         nabla_b = [np.zeros(b.shape) for b in self.biases]
         nabla_w = [np.zeros(w.shape) for w in self.weights]
         for x, y in training_data:
@@ -91,8 +89,6 @@ class Network():
                 sigmoid_prime_vec(zs[-1])
             nabla_b[-1] += delta
             nabla_w[-1] += np.dot(delta, np.transpose(activations[-2]))
-            if gradient_checking:
-                self._gradient_check(1, activations[-2], delta, x, y)
             # Note that the variable l in the loop below is used a
             # little differently to the book.  Here, l = 1 means the
             # last layer of neurons, l = 2 is the second-last layer,
@@ -105,52 +101,10 @@ class Network():
                 delta = np.dot(np.transpose(self.weights[-l+1]), delta) * spv
                 nabla_b[-l] += delta
                 nabla_w[-l] += np.dot(delta, np.transpose(activations[-l-1]))
-                if gradient_checking:
-                    self._gradient_check(l, activations[-l-1], delta, x, y)
         # Add the regularization terms to the gradient for the weights
         nabla_w = [nw+lmbda*w for nw, w in zip(nabla_w, self.weights)]
         self.weights = [w-eta*nw for w, nw in zip(self.weights, nabla_w)]
         self.biases = [b-eta*nb for b, nb in zip(self.biases, nabla_b)]
-
-    def _gradient_check(self, l, activations, delta, x, y):
-        """ Do a gradient check for the ``l``th layer from the end,
-        which we'll dub the ``-l``th layer.  ``activations`` is for
-        the ``-l-1`` layer, and ``delta`` is for the ``-l`` layer.
-        The input to the network is ``x``, and the desired output is
-        ``y``."""
-        print "\nGradient check for the -%s layer" % l
-        backprop_nabla_b = delta
-        backprop_nabla_w = np.dot(delta, np.transpose(activations))
-        d = 0.00001 # Delta for the biases and weights for gradient check
-        # Gradient check the biases
-        gradient_check_nabla_b = np.zeros((self.sizes[-l], 1))
-        for j in xrange(self.sizes[-l]):
-            net1 = self._copy()
-            net1.biases[-l][(j,0)] += d
-            net2 = self._copy()
-            net2.biases[-l][(j,0)] -= d
-            gradient_check_nabla_b[j] = (net1.cost(x, y)-net2.cost(x, y))/(2*d)
-        print "Squared Euclidean error in the gradient for biases: %s" % \
-            np.sum((backprop_nabla_b-gradient_check_nabla_b)**2)
-        # Gradient check the weights
-        gradient_check_nabla_w = np.zeros((self.sizes[-l], self.sizes[-l-1]))
-        for j in xrange(self.sizes[-l]):
-            for k in xrange(self.sizes[-l-1]):
-                net1 = self._copy()
-                net1.weights[-l][(j,k)] += d
-                net2 = self._copy()
-                net2.weights[-l][(j,k)] -= d
-                gradient_check_nabla_w[j, k] = \
-                    (net1.cost(x, y)-net2.cost(x, y))/(2*d)
-        print "Squared Euclidean error in the gradient for weights: %s" % \
-            np.sum((backprop_nabla_w-gradient_check_nabla_w)**2)
-
-    def _copy(self):
-        "Return a copy of ``self``, with the same biases and weights."
-        net = Network(self.sizes)
-        net.biases = [np.copy(b) for b in self.biases]
-        net.weights = [np.copy(w) for w in self.weights]
-        return net
 
     def evaluate(self, test_inputs, actual_test_results):
         """Return the number of ``test_inputs`` for which the neural
