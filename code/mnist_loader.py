@@ -6,7 +6,13 @@ A library to load the MNIST image data.  For details of the data
 structures that are returned, see the doc string for ``load_data``.
 The library also contains a helper method ``load_data_nn`` which
 returns the data in a format well adapted for use with our neural
-network code."""
+network code.
+
+Note that the code requires the file ``mnist.pkl``.  This is not
+included in the repository.  It may be downloaded from:
+
+http://www.iro.umontreal.ca/~lisa/deep/data/mnist/mnist.pkl.gz
+"""
 
 #### Libraries
 # Standard library
