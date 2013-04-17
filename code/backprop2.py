@@ -42,8 +42,8 @@ class Network():
         only ever used in computing the outputs from later layers."""
         self.num_layers = len(sizes)
         self.sizes = sizes
-        self.biases = [np.random.randn(y, 1) for y in sizes[1:]]
-        self.weights = [np.random.randn(y, x) 
+        self.biases = [np.random.randn(y, 1)/np.sqrt(y) for y in sizes[1:]]
+        self.weights = [np.random.randn(y, x)/np.sqrt(y) 
                         for x, y in zip(sizes[:-1], sizes[1:])]
 
     def feedforward(self, a):
@@ -73,24 +73,32 @@ class Network():
                 training_data[k:k+mini_batch_size]
                 for k in xrange(0, len(training_data), mini_batch_size)]
             for mini_batch in mini_batches:
-                self.backprop(mini_batch, T, eta, lmbda)
+                self.backprop(mini_batch, T, eta, lmbda, 
+                              self.cost_cross_entropy,
+                              self.cost_derivative_cross_entropy)
             if test:
                 print "Epoch {}: {} / {}".format(
                     j, self.evaluate(test_inputs, actual_test_results), n)
             else:
                 print "Epoch %s: %s" % (
-                    j, sum(self.cost(x, x) for (x,y) in training_data[:1000]))
- 
+                    j, 
+                    sum(self.cost_cross_entropy(x, y) 
+                        for (x, y) in training_data[:1000])) 
 
-    def backprop(self, training_data, T, eta, lmbda):
+    def backprop(self, training_data, T, eta, lmbda, 
+                 cost, cost_derivative):
         """Update the network's weights and biases by applying a
         single iteration of gradient descent using backpropagation.
         The ``training_data`` is a list of tuples ``(x, y)``.  It need
         not include the entire training data set --- it might be a
         mini-batch, or even a single training example.  ``T`` is the
         size of the total training set (which may not be the same as
-        the size of ``training_data``).  The other parameters are
-        self-explanatory."""
+        the size of ``training_data``).  The parameters ``eta`` and
+        ``lmbda`` are the learning rate and regularization
+        parameter. The two final parameters are functions used to
+        compute the cost and cost derivative.  Examples of those
+        functions are ``self.cost_cross_entropy`` and
+        ``self.cost_derivative_cross_entropy``, as defined below."""
         nabla_b = [np.zeros(b.shape) for b in self.biases]
         nabla_w = [np.zeros(w.shape) for w in self.weights]
         B = len(training_data)
@@ -105,7 +113,7 @@ class Network():
                 activation = sigmoid_vec(z)
                 activations.append(activation)
             # backward pass
-            delta = self.cost_derivative(activations[-1], y) * \
+            delta = cost_derivative(activations[-1], y) * \
                 sigmoid_prime_vec(zs[-1])
             nabla_b[-1] += delta
             nabla_w[-1] += np.dot(delta, np.transpose(activations[-2]))
@@ -136,22 +144,28 @@ class Network():
         return sum(int(x == y) 
                    for x, y in zip(test_results, actual_test_results))
         
-    def cost(self, x, y):
-        """Return the quadratic cost associated to the network, with
-        input ``x`` and desired output ``y``.  Note that there is no
-        regularization."""
+    def cost_quadratic(self, x, y):
+        """Return the unregularized quadratic cost associated to the
+        network, with input ``x`` and desired output ``y``."""
         return np.sum((self.feedforward(x)-y)**2)/2.0
 
-    def cost_derivative(self, output_activations, y):
-        """Return the vector of partial derivatives \partial C_x /
-        \partial a for the output activations, ``a``.  For the
-        unregularized quadratic cost this is just the difference
-        between the output activations and the desired output, ``y``."""
-        return np.array([(aj-yj)/(aj*(1-aj)) 
-                         for (aj, yj) in zip(output_activations, y)])
-        # XXX The next is for the (unregularized quadratic cost)
-        # return (output_activations-y) 
+    def cost_cross_entropy(self, x, y):
+        """Return the unregularized cross entropy cost associated to
+        the network, with input ``x`` and desired output ``y``."""
+        a = self.feedforward(x)
+        return np.sum(-y*np.log(a)-(1-y)*np.log(1-a)) 
 
+    def cost_derivative_quadratic(self, a, y):
+        """Return the vector of partial derivatives \partial C_x /
+        \partial a for the output activations, ``a``, and for an
+        unregularized quadratic cost function."""
+        return (a-y) 
+
+    def cost_derivative_cross_entropy(self, a, y):
+        """Return the vector of partial derivatives \partial C_x /
+        \partial a for the output activations, ``a``, and for the
+        unregularized cross-entropy cost function."""
+        return (a-y)/(a*(1-a)) 
 
     def evaluate_training_results(self, training_data):
         """Return the number of elements of the ``training_data`` that
