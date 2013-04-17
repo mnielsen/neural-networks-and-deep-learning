@@ -16,6 +16,17 @@ import random
 # Third-party libraries
 import numpy as np
 
+def plot_helper(x):
+    import matplotlib
+    import matplotlib.pyplot as plt
+    x = np.reshape(x, (-1, 28))
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    ax.matshow(x, cmap = matplotlib.cm.binary)
+    plt.xticks(np.array([]))
+    plt.yticks(np.array([]))
+    plt.show()
+
 class Network():
 
     def __init__(self, sizes):
@@ -67,7 +78,9 @@ class Network():
                 print "Epoch {}: {} / {}".format(
                     j, self.evaluate(test_inputs, actual_test_results), n)
             else:
-                print "Epoch %s complete" % j
+                print "Epoch %s: %s" % (
+                    j, sum(self.cost(x, x) for (x,y) in training_data[:1000]))
+ 
 
     def backprop(self, training_data, T, eta, lmbda):
         """Update the network's weights and biases by applying a
@@ -134,7 +147,11 @@ class Network():
         \partial a for the output activations, ``a``.  For the
         unregularized quadratic cost this is just the difference
         between the output activations and the desired output, ``y``."""
-        return (output_activations-y) 
+        return np.array([(aj-yj)/(aj*(1-aj)) 
+                         for (aj, yj) in zip(output_activations, y)])
+        # XXX The next is for the (unregularized quadratic cost)
+        # return (output_activations-y) 
+
 
     def evaluate_training_results(self, training_data):
         """Return the number of elements of the ``training_data`` that
