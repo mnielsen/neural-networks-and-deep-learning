@@ -1,12 +1,10 @@
 """
-backprop
-~~~~~~~~
+autoencoder
+~~~~~~~~~~~
 
-A module to implement the stochastic gradient descent learning
-algorithm for a neural network.  Gradients are calculated using
-backpropagation.  Note that I have focused on making the code simple,
-easily readable, and easily modifiable.  It is not optimized, and
-omits many desirable features.
+A module which implements deep autoencoders.  Note that the module
+also includes code for backpropagation, which is based upon (and
+improves) the earlier code in backprop.py.
 """
 
 #### Libraries
@@ -27,6 +25,30 @@ def plot_helper(x):
     plt.yticks(np.array([]))
     plt.show()
 
+
+class AutoEncoder(Network):
+
+    def __init__(self, layers):
+        self.layers = layers
+        Network.__init__(self, layers+layers[1::-1])
+
+    def train(self, training_data, epochs, mini_batch_size, eta,
+              lmbda):
+        training_data = [(x, x) for x in training_data]
+        cur_training_data = training_data[::]
+        for j in range(len(self.layers)-1):
+            net = Network([self.layers[j], self.layers[j+1], self.layers[j]])
+            net.SGD(training_data, epochs[j], mini_batch_size, eta[j],
+                lmbda[j])
+            self.biases[j] = net.biases[0]
+            self.weights[j] = net.weights[0]
+            cur_training_data = [
+                sigmoid_vec(np.dot(net.weights[0], x)+net.biases[0])
+                for (x, _) in cur_training_data]
+        self.SGD(training_data, epochs[-1], mini_batch_size, eta[-1],
+                 lmbda[-1])
+
+            
 class Network():
 
     def __init__(self, sizes):
