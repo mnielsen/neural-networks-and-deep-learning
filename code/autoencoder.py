@@ -179,11 +179,27 @@ class Network():
 class DeepAutoEncoder(Network):
 
     def __init__(self, layers):
+        """
+        The list ``layers`` specifies the sizes of the nested
+        autoencoders.  For example, if ``layers`` is [50, 20, 10] then
+        the deep autoencoder will be a neural network with layers of
+        size [50, 20, 10, 20, 50]."""
         self.layers = layers
         Network.__init__(self, layers+layers[-2::-1])
 
     def train(self, training_data, epochs, mini_batch_size, eta,
               lmbda):
+        """
+        Train the DeepAutoEncoder.  The ``training_data`` is a list of
+        training inputs, ``x``, ``mini_batch_size`` is a single
+        positive integer, and ``epochs``, ``eta``, ``lmbda`` are lists
+        of parameters, with the different list members corresponding
+        to the different stages of training.  For example, ``eta[0]``
+        is the learning rate used for the first nested autoencoder,
+        ``eta[1]`` is the learning rate for the second nested
+        autoencoder, and so on.  ``eta[-1]`` is the learning rate used
+        for the final stage of fine-tuning.
+        """
         print "\nTraining a %s deep autoencoder" % (
             "-".join([str(j) for j in self.sizes]),)
         training_data = [(x, x) for x in training_data]
@@ -194,6 +210,10 @@ class DeepAutoEncoder(Network):
             print "%s epochs, mini-batch size %s, eta = %s, lambda = %s" % (
                 epochs[j], mini_batch_size, eta[j], lmbda[j])
             net = Network([self.layers[j], self.layers[j+1], self.layers[j]])
+            net.biases[0] = self.biases[j]
+            net.biases[1] = self.biases[-j-1]
+            net.weights[0] = self.weights[j]
+            net.weights[1] = self.weights[-j-1]
             net.SGD(cur_training_data, epochs[j], mini_batch_size, eta[j],
                 lmbda[j])
             self.biases[j] = net.biases[0]
@@ -203,8 +223,6 @@ class DeepAutoEncoder(Network):
             cur_training_data = [
                 (sigmoid_vec(np.dot(net.weights[0], x)+net.biases[0]),)*2
                 for (x, _) in cur_training_data]
-        #import pdb
-        #pdb.set_trace()
         print "\nFine-tuning network weights with backpropagation"
         print "%s epochs, mini-batch size %s, eta = %s, lambda = %s" % (
                 epochs[-1], mini_batch_size, eta[-1], lmbda[-1])
