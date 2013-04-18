@@ -26,29 +26,6 @@ def plot_helper(x):
     plt.show()
 
 
-class AutoEncoder(Network):
-
-    def __init__(self, layers):
-        self.layers = layers
-        Network.__init__(self, layers+layers[1::-1])
-
-    def train(self, training_data, epochs, mini_batch_size, eta,
-              lmbda):
-        training_data = [(x, x) for x in training_data]
-        cur_training_data = training_data[::]
-        for j in range(len(self.layers)-1):
-            net = Network([self.layers[j], self.layers[j+1], self.layers[j]])
-            net.SGD(training_data, epochs[j], mini_batch_size, eta[j],
-                lmbda[j])
-            self.biases[j] = net.biases[0]
-            self.weights[j] = net.weights[0]
-            cur_training_data = [
-                sigmoid_vec(np.dot(net.weights[0], x)+net.biases[0])
-                for (x, _) in cur_training_data]
-        self.SGD(training_data, epochs[-1], mini_batch_size, eta[-1],
-                 lmbda[-1])
-
-            
 class Network():
 
     def __init__(self, sizes):
@@ -197,6 +174,43 @@ class Network():
         actual_training_results = [np.argmax(x[1]) for x in training_data]
         return sum(int(x == y) 
                    for x, y in zip(training_results, actual_training_results))
+
+
+class DeepAutoEncoder(Network):
+
+    def __init__(self, layers):
+        self.layers = layers
+        Network.__init__(self, layers+layers[-2::-1])
+
+    def train(self, training_data, epochs, mini_batch_size, eta,
+              lmbda):
+        print "\nTraining a %s deep autoencoder" % (
+            "-".join([str(j) for j in self.sizes]),)
+        training_data = [(x, x) for x in training_data]
+        cur_training_data = training_data[::]
+        for j in range(len(self.layers)-1):
+            print "\nTraining the %s-%s-%s nested autoencoder" % (
+                self.layers[j], self.layers[j+1], self.layers[j])
+            print "%s epochs, mini-batch size %s, eta = %s, lambda = %s" % (
+                epochs[j], mini_batch_size, eta[j], lmbda[j])
+            net = Network([self.layers[j], self.layers[j+1], self.layers[j]])
+            net.SGD(cur_training_data, epochs[j], mini_batch_size, eta[j],
+                lmbda[j])
+            self.biases[j] = net.biases[0]
+            self.biases[-j-1] = net.biases[1]
+            self.weights[j] = net.weights[0]
+            self.weights[-j-1] = net.weights[1]
+            cur_training_data = [
+                (sigmoid_vec(np.dot(net.weights[0], x)+net.biases[0]),)*2
+                for (x, _) in cur_training_data]
+        #import pdb
+        #pdb.set_trace()
+        print "\nFine-tuning network weights with backpropagation"
+        print "%s epochs, mini-batch size %s, eta = %s, lambda = %s" % (
+                epochs[-1], mini_batch_size, eta[-1], lmbda[-1])
+        self.SGD(training_data, epochs[-1], mini_batch_size, eta[-1],
+                 lmbda[-1])
+
 
 #### Miscellaneous functions
 def sigmoid(z):

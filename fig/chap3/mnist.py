@@ -2,7 +2,13 @@
 mnist
 ~~~~~
 
-Draws images based on the MNIST data."""
+Draws images based on the MNIST data.
+
+Note that the code requires the file ``../../data/mnist.pkl``.  This is not
+included in the repository.  It may be downloaded from:
+
+http://www.iro.umontreal.ca/~lisa/deep/data/mnist/mnist.pkl.gz
+"""
 
 #### Libraries
 # Standard library
@@ -103,7 +109,7 @@ def plot_features(image):
 def load_data():
     """ Return the MNIST data as a tuple containing the training data,
     the validation data, and the test data."""
-    f = open('mnist.pkl', 'rb')
+    f = open('../../data/mnist.pkl', 'rb')
     training_set, validation_set, test_set = cPickle.load(f)
     f.close()
     return (training_set, validation_set, test_set)

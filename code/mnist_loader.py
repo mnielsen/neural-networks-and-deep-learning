@@ -8,7 +8,7 @@ The library also contains a helper method ``load_data_nn`` which
 returns the data in a format well adapted for use with our neural
 network code.
 
-Note that the code requires the file ``mnist.pkl``.  This is not
+Note that the code requires the file ``../data/mnist.pkl``.  This is not
 included in the repository.  It may be downloaded from:
 
 http://www.iro.umontreal.ca/~lisa/deep/data/mnist/mnist.pkl.gz
@@ -45,7 +45,7 @@ def load_data():
     neural network code.  For that, see the wrapper function
     ``load_data_nn``.
     """
-    f = open('mnist.pkl', 'rb')
+    f = open('../data/mnist.pkl', 'rb')
     training_data, validation_data, test_data = cPickle.load(f)
     f.close()
     return (training_data, validation_data, test_data)
