@@ -176,7 +176,7 @@ class Network():
                    for x, y in zip(training_results, actual_training_results))
 
 
-class DeepAutoEncoder(Network):
+class DeepAutoencoder(Network):
 
     def __init__(self, layers):
         """
@@ -190,7 +190,7 @@ class DeepAutoEncoder(Network):
     def train(self, training_data, epochs, mini_batch_size, eta,
               lmbda):
         """
-        Train the DeepAutoEncoder.  The ``training_data`` is a list of
+        Train the DeepAutoencoder.  The ``training_data`` is a list of
         training inputs, ``x``, ``mini_batch_size`` is a single
         positive integer, and ``epochs``, ``eta``, ``lmbda`` are lists
         of parameters, with the different list members corresponding
@@ -202,24 +202,16 @@ class DeepAutoEncoder(Network):
         """
         print "\nTraining a %s deep autoencoder" % (
             "-".join([str(j) for j in self.sizes]),)
-        training_data = [(x, x) for x in training_data]
+        training_data = double(training_data)
         cur_training_data = training_data[::]
         for j in range(len(self.layers)-1):
             print "\nTraining the %s-%s-%s nested autoencoder" % (
                 self.layers[j], self.layers[j+1], self.layers[j])
             print "%s epochs, mini-batch size %s, eta = %s, lambda = %s" % (
                 epochs[j], mini_batch_size, eta[j], lmbda[j])
-            net = Network([self.layers[j], self.layers[j+1], self.layers[j]])
-            net.biases[0] = self.biases[j]
-            net.biases[1] = self.biases[-j-1]
-            net.weights[0] = self.weights[j]
-            net.weights[1] = self.weights[-j-1]
-            net.SGD(cur_training_data, epochs[j], mini_batch_size, eta[j],
+            self.train_nested_autoencoder(
+                j, cur_training_data, epochs[j], mini_batch_size, eta[j],
                 lmbda[j])
-            self.biases[j] = net.biases[0]
-            self.biases[-j-1] = net.biases[1]
-            self.weights[j] = net.weights[0]
-            self.weights[-j-1] = net.weights[1]
             cur_training_data = [
                 (sigmoid_vec(np.dot(net.weights[0], x)+net.biases[0]),)*2
                 for (x, _) in cur_training_data]
@@ -229,6 +221,50 @@ class DeepAutoEncoder(Network):
         self.SGD(training_data, epochs[-1], mini_batch_size, eta[-1],
                  lmbda[-1])
 
+    def train_nested_autoencoder(
+        self, j, training_data, epochs, mini_batch_size, eta, lmbda):
+        """
+        Train the nested autoencoder that starts at level ``j`` in the
+        deep autoencoder.  Note that ``training_data`` should be of
+        the form ``(x, x)`` for appropriate inputs ``x`` at that
+        layer.  """
+        net = Network([self.layers[j], self.layers[j+1], self.layers[j]])
+        net.biases[0] = self.biases[j]
+        net.biases[1] = self.biases[-j-1]
+        net.weights[0] = self.weights[j]
+        net.weights[1] = self.weights[-j-1]
+        net.SGD(training_data, epochs, mini_batch_size, eta, lmbda)
+        self.biases[j] = net.biases[0]
+        self.biases[-j-1] = net.biases[1]
+        self.weights[j] = net.weights[0]
+        self.weights[-j-1] = net.weights[1]
+
+    def train_nested_autoencoder_repl(
+        self, j, training_data, epochs, mini_batch_size, eta, lmbda):
+        """
+        This is a convenience method that can be used from the REPL to
+        train the nested autoencoder that starts at level ``j`` in the
+        deep autoencoder.  Note that ``training_data`` is the input
+        data for the first layer of the network, and is a list of
+        entries ``x``."""
+        self.train_nested_autoencoder(
+            j, double(self.partial_feedforward(training_data, j)),
+            epochs, mini_batch_size, eta, lmbda)
+
+    def partial_feedforward(self, training_data, j):
+        """
+        Feedforward the elements ``x`` in ``training_data`` through
+        the network until the ``j``th layer.  Return the list of
+        activations.  
+        """
+        for k in range(j):
+            training_data = [
+                sigmoid_vec(np.dot(self.weights[k], x)+self.biases[k])
+                for x in training_data]
+        return training_data
+
+def double(l):
+    return [(x, x) for x in l]
 
 #### Miscellaneous functions
 def sigmoid(z):
