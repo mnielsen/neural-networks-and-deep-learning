@@ -168,6 +168,14 @@ class Network():
                    for x, y in zip(training_results, actual_training_results))
 
 #### Miscellaneous functions
+def minimal_cross_entropy(training_data):
+    """
+    Return the minimal output cross entropy for training data
+    consisting of a list of values ``(x, y)``.  This is just
+    -sum (y ln(y) + (1-y) ln(1-y))."""
+    y = np.array([yj for (_, yj) in training_data])
+    return np.sum(-y*np.log(y)-(1-y)*np.log(1-y))
+
 def sigmoid(z):
     """The sigmoid function.  Note that it checks to see whether ``z``
     is very negative, to avoid overflow errors in the exponential
