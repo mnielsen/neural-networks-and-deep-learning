@@ -173,8 +173,16 @@ def minimal_cross_entropy(training_data):
     Return the minimal output cross entropy for training data
     consisting of a list of values ``(x, y)``.  This is just
     -sum (y ln(y) + (1-y) ln(1-y))."""
-    y = np.array([yj for (_, yj) in training_data])
-    return np.sum(-y*np.log(y)-(1-y)*np.log(1-y))
+    def rescale(y):
+        """
+        Rescale the vectors very slightly to ensure there are no
+        problems with taking logarithms of 0.  This might cause a
+        problem if there are a huge number of features (10**7 & up),
+        in which case this code will need to be modified."""
+        return 10**(-9)+(1-2*10**(-9))*y
+    rescaled_training_data = [rescale(y) for (_, y) in training_data]
+    return np.sum(-np.sum(y*np.log(y)+(1-y)*np.log(1-y))
+                for y in rescaled_training_data)
 
 def sigmoid(z):
     """The sigmoid function.  Note that it checks to see whether ``z``
