@@ -107,7 +107,7 @@ class Network():
             delta = cost_derivative(activations[-1], y) * \
                 sigmoid_prime_vec(zs[-1])
             nabla_b[-1] += delta
-            nabla_w[-1] += np.dot(delta, np.transpose(activations[-2]))
+            nabla_w[-1] += np.dot(delta, activations[-2].transpose())
             # Note that the variable l in the loop below is used a
             # little differently to the book.  Here, l = 1 means the
             # last layer of neurons, l = 2 is the second-last layer,
@@ -117,9 +117,9 @@ class Network():
             for l in xrange(2, self.num_layers):
                 z = zs[-l]
                 spv = sigmoid_prime_vec(z)
-                delta = np.dot(np.transpose(self.weights[-l+1]), delta) * spv
+                delta = np.dot(self.weights[-l+1].transpose(), delta) * spv
                 nabla_b[-l] += delta
-                nabla_w[-l] += np.dot(delta, np.transpose(activations[-l-1]))
+                nabla_w[-l] += np.dot(delta, activations[-l-1].transpose())
         # Add the regularization terms to the gradient for the weights
         nabla_w = [nw+(lmbda*B/T)*w for nw, w in zip(nabla_w, self.weights)]
         self.weights = [w-eta*nw for w, nw in zip(self.weights, nabla_w)]
