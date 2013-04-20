@@ -2,9 +2,7 @@
 autoencoder
 ~~~~~~~~~~~
 
-A module which implements deep autoencoders.  Note that the module
-also includes code for backpropagation, which is based upon (and
-improves) the earlier code in backprop.py.
+A module which implements deep autoencoders.  
 """
 
 #### Libraries
