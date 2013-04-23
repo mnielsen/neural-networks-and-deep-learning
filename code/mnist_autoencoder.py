@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # Constants
-HIDDEN_UNITS=30 # size of the hidden layer in the autoencoder
+HIDDEN_UNITS=100 # size of the hidden layer in the autoencoder
 
 def main():
     # Do the training
