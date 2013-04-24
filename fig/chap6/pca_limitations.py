@@ -1,6 +1,6 @@
 """
-mnist_pca
-~~~~~~~~~
+pca_limitations
+~~~~~~~~~~~~~~~
 
 Plot graphs to illustrate the limitations of PCA.
 """
