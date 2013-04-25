@@ -33,7 +33,7 @@ def train_autoencoder(hidden_units, training_data):
     "Return a trained autoencoder."
     autoencoder_training_data = [(x, x) for x, _ in training_data]
     net = Network([784, hidden_units, 784])
-    net.SGD(autoencoder_training_data, 3, 10, 0.01, 0.05)
+    net.SGD(autoencoder_training_data, 6, 10, 0.007, 0.05)
     return net
 
 def plot_test_results(net, test_inputs, actual_test_results):
@@ -62,9 +62,9 @@ def classifier(hidden_units):
         mnist_loader.load_data_nn()
     net_ae = train_autoencoder(hidden_units, training_data)
     net_c = Network([784, hidden_units, 10])
-    net_c.biases = net_ae.biases[:2]+[np.random.randn(10, 1)/np.sqrt(10)]
-    net_c.weights = net_ae.weights[:2]+\
+    net_c.biases = net_ae.biases[:1]+[np.random.randn(10, 1)/np.sqrt(10)]
+    net_c.weights = net_ae.weights[:1]+\
         [np.random.randn(10, hidden_units)/np.sqrt(10)]
-    net_c.SGD(training_data, 3, 10, 0.01, 0.05)
+    net_c.SGD(training_data, 6, 10, 0.007, 0.05)
     print net_c.evaluate(test_inputs, actual_test_results)
     return net_c

@@ -12,12 +12,12 @@ import mnist_loader
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
-from sklearn.decomposition import PCA
+from sklearn.decomposition import RandomizedPCA
 
 
 # Training
 training_data, test_inputs, actual_test_results = mnist_loader.load_data_nn()
-pca = PCA(n_components=30)
+pca = RandomizedPCA(n_components=30)
 nn_images = [x for (x, y) in training_data]
 pca_images = np.concatenate(nn_images, axis=1).transpose()
 pca_r = pca.fit(pca_images)
