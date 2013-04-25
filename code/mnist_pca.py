@@ -20,7 +20,7 @@ training_data, test_inputs, actual_test_results = mnist_loader.load_data_nn()
 pca = PCA(n_components=30)
 nn_images = [x for (x, y) in training_data]
 pca_images = np.concatenate(nn_images, axis=1).transpose()
-pca_r = pca.fit(pca_images[:1000])
+pca_r = pca.fit(pca_images)
 
 # Try PCA on first ten test images
 test_images = np.array(test_inputs[:10]).reshape((10,784))

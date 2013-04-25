@@ -1,6 +1,6 @@
 """
-autoencoder
-~~~~~~~~~~~
+deep_autoencoder
+~~~~~~~~~~~~~~~~
 
 A module which implements deep autoencoders.  
 """
