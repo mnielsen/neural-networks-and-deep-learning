@@ -55,6 +55,7 @@ encoded_test_1 = [sigmoid_vec(np.dot(ae_1.weights[0], x)+ae_1.biases[0])
 encoded_test_2 = [sigmoid_vec(np.dot(ae_2.weights[0], x)+ae_2.biases[0])
                   for x in test]
 test_data = zip(encoded_test_1, encoded_test_2)
-error = sum([np.sum((net.feedforward(x)-y)**2)
-             for (x, y) in test_data])
-print "Mean square error %s per training image" % (error / SIZE,)
+print "Mean desired output activation: %s" % (
+    sum(y.mean() for _, y in test_data) / SIZE,)
+error = sum([np.sum((net.feedforward(x)-y)**2) for (x, y) in test_data])
+print "Mean square error per training image: %s" % (error / SIZE,)
