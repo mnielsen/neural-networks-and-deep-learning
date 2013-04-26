@@ -48,14 +48,25 @@ print "\nFinding mapping between theories"
 net = Network([30, 60, 30])
 net.SGD(encoded_training_data, 6, 10, 0.01, 0.05)
 
-
-print "\nComparing theories"
+print """\nBaseline for comparison: decompress with the first autoencoder"""
+print """and compress with the second autoencoder"""
 encoded_test_1 = [sigmoid_vec(np.dot(ae_1.weights[0], x)+ae_1.biases[0])
                   for x in test]
 encoded_test_2 = [sigmoid_vec(np.dot(ae_2.weights[0], x)+ae_2.biases[0])
                   for x in test]
 test_data = zip(encoded_test_1, encoded_test_2)
+net_baseline = Network([30, 784, 30])
+net_baseline.biases[0] = ae_1.biases[1]
+net_baseline.weights[0] = ae_1.weights[1]
+net_baseline.biases[1] = ae_2.biases[0]
+net_baseline.weights[1] = ae_2.weights[0]
+error_baseline = sum(np.linalg.norm(net_baseline.feedforward(x)-y, 1) 
+                     for (x, y) in test_data)
+print "Baseline average l1 error per training image: %s" % (error_baseline / SIZE,)
+
+print "\nComparing theories with a simple interconversion"
 print "Mean desired output activation: %s" % (
     sum(y.mean() for _, y in test_data) / SIZE,)
 error = sum(np.linalg.norm(net.feedforward(x)-y, 1) for (x, y) in test_data)
 print "Average l1 error per training image: %s" % (error / SIZE,)
+
