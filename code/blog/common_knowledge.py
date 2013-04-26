@@ -19,7 +19,7 @@ import numpy as np
 #### Parameters
 # Size of the training sets.  May range from 1000 to 12,500.  Lower
 # will be faster, higher will give more accuracy.
-SIZE = 1000 
+SIZE = 5000 
 
 
 print "\nGenerating training data"
