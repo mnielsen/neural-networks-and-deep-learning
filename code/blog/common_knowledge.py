@@ -22,7 +22,7 @@ import numpy as np
 SIZE = 1000 
 
 
-# Generate training sets
+print "\nGenerating training data"
 training_data, _, _ = mnist_loader.load_data_nn()
 td_1 = [(x, x) for x, _ in training_data[0:SIZE]]
 td_2 = [(x, x) for x, _ in training_data[12500:12500+SIZE]]
@@ -44,7 +44,7 @@ encoded_td_2 = [sigmoid_vec(np.dot(ae_2.weights[0], x)+ae_2.biases[0])
                 for x in td_3]
 encoded_training_data = zip(encoded_td_1, encoded_td_2)
 
-print "\Finding mapping between theories"
+print "\nFinding mapping between theories"
 net = Network([30, 60, 30])
 net.SGD(encoded_training_data, 6, 10, 0.01, 0.05)
 
@@ -57,5 +57,5 @@ encoded_test_2 = [sigmoid_vec(np.dot(ae_2.weights[0], x)+ae_2.biases[0])
 test_data = zip(encoded_test_1, encoded_test_2)
 print "Mean desired output activation: %s" % (
     sum(y.mean() for _, y in test_data) / SIZE,)
-error = sum([np.sum((net.feedforward(x)-y)**2) for (x, y) in test_data])
-print "Mean square error per training image: %s" % (error / SIZE,)
+error = sum(np.linalg.norm(net.feedforward(x)-y, 1) for (x, y) in test_data)
+print "Average l1 error per training image: %s" % (error / SIZE,)
