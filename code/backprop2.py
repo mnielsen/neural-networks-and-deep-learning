@@ -44,7 +44,7 @@ class Network():
         ``end`` is ``None`` then this is interpreted as ``end =
         self.num_layers``, i.e., the default behaviour is to propagate
         through to the end of the network."""
-        end = self.num_layers if end == None
+        if end == None: end = self.num_layers
         for b, w in zip(self.biases, self.weights)[start:end]:
             a = sigmoid_vec(np.dot(w, a)+b)
         return a
