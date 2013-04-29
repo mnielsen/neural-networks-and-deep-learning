@@ -44,10 +44,9 @@ nw2 = [0.12571016850457151, 0.44231149185805047,
        1.8435833504677326, 7.61973813981073]
 nw3 = [0.15854489503205446, 0.70244235144444678, 
        2.6294803575724157, 10.427062019753425]
-plt.plot(range(4), nw1, "ro-", range(4), nw2, "go-", 
-         range(4), nw3, "bo-")
-plt.xlabel('Layer')
-plt.ylabel(r"$\Vert\nabla C\Vert$")
-plt.xticks([0, 1, 2, 3])
-plt.legend(('mini-batch 7', 'mini-batch 8', 'mini-batch 9'), loc='upper left')
+plt.plot(range(1, 5), nw1, "ro-", range(1, 5), nw2, "go-", 
+         range(1, 5), nw3, "bo-")
+plt.xlabel('Layer $l$')
+plt.ylabel(r"$\Vert\nabla C^l_w\Vert$")
+plt.xticks([1, 2, 3, 4])
 plt.show()
