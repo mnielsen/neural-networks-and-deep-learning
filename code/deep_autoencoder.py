@@ -103,29 +103,6 @@ class DeepAutoencoder(Network):
             j, double(self.initial_feedforward(training_data, j)),
             epochs, mini_batch_size, eta, lmbda)
 
-    def initial_feedforward(self, training_data, j):
-        """
-        Feedforward the elements ``x`` in ``training_data`` through
-        the network until the ``j``th layer.  Return the list of
-        activations.  
-        """
-        for k in range(j):
-            training_data = [
-                sigmoid_vec(np.dot(self.weights[k], x)+self.biases[k])
-                for x in training_data]
-        return training_data
-
-    def final_feedforward(self, data, j):
-        """
-        Feedforward the elements ``x`` in ``data`` through the network
-        to the output.  The elements in ``data`` are assumed to be
-        inputs to the ``j``th layer."""
-        for k in range(j, len(self.weights)):
-            data = [
-                sigmoid_vec(np.dot(self.weights[k], a)+self.biases[k])
-                for a in data]
-        return data
-
     def feature(self, j, k):
         """
         Return the output if neuron number ``k`` in layer ``j`` is

@@ -33,7 +33,7 @@ def train_autoencoder(hidden_units, training_data):
     "Return a trained autoencoder."
     autoencoder_training_data = [(x, x) for x, _ in training_data]
     net = Network([784, hidden_units, 784])
-    net.SGD(autoencoder_training_data, 6, 10, 0.007, 0.05)
+    net.SGD(autoencoder_training_data, 6, 10, 0.01, 0.05)
     return net
 
 def plot_test_results(net, test_inputs, actual_test_results):
@@ -53,18 +53,31 @@ def plot_test_results(net, test_inputs, actual_test_results):
     plt.yticks(np.array([]))
     plt.show()
 
-def classifier(hidden_units):
+def classifier(hidden_units, n_unlabeled_inputs, n_labeled_inputs):
     """
-    Train an autoencoder using the MNIST training data, and then use
-    the autoencoder to create a classifier with a single hidden layer.
+    Train a semi-supervised classifier.  We begin with pretraining,
+    creating an autoencoder which uses ``n_unlabeled_inputs`` from the
+    MNIST training data.  This is then converted into a classifier
+    which is fine-tuned using the ``n_labeled_inputs``.
+
+    For comparison a classifier is also created which does not make
+    use of the unlabeled data.
     """
     training_data, test_inputs, actual_test_results = \
         mnist_loader.load_data_nn()
-    net_ae = train_autoencoder(hidden_units, training_data)
+    print "\nUsing pretraining and %s items of unlabeled data" %\
+        n_unlabeled_inputs
+    net_ae = train_autoencoder(hidden_units, training_data[:n_unlabeled_inputs])
     net_c = Network([784, hidden_units, 10])
     net_c.biases = net_ae.biases[:1]+[np.random.randn(10, 1)/np.sqrt(10)]
     net_c.weights = net_ae.weights[:1]+\
         [np.random.randn(10, hidden_units)/np.sqrt(10)]
-    net_c.SGD(training_data, 6, 10, 0.007, 0.05)
-    print net_c.evaluate(test_inputs, actual_test_results)
+    net_c.SGD(training_data[-n_labeled_inputs:], 300, 10, 0.01, 0.05)
+    print "Result on test data: %s / %s" % (
+        net_c.evaluate(test_inputs, actual_test_results), len(test_inputs))
+    print "Training a network with %s items of training data" % n_labeled_inputs
+    net = Network([784, hidden_units, 10])
+    net.SGD(training_data[-n_labeled_inputs:], 300, 10, 0.01, 0.05)
+    print "Result on test data: %s / %s" % (
+        net.evaluate(test_inputs, actual_test_results), len(test_inputs))
     return net_c

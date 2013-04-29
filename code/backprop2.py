@@ -74,7 +74,7 @@ class Network():
                 print "Epoch %s: %s" % (
                     j, 
                     sum(self.cost_cross_entropy(x, y) 
-                        for (x, y) in training_data[:1000])) 
+                        for (x, y) in training_data)) 
 
     def backprop(self, training_data, T, eta, lmbda, 
                  cost, cost_derivative):
@@ -166,6 +166,30 @@ class Network():
         actual_training_results = [np.argmax(x[1]) for x in training_data]
         return sum(int(x == y) 
                    for x, y in zip(training_results, actual_training_results))
+
+    def initial_feedforward(self, input_data, j):
+        """
+        Feedforward the elements ``x`` in the list ``input_data``
+        through the network until the ``j``th layer.  Return the list
+        of activations from the ``j``th layer.
+        """
+        for k in range(j):
+            intermediate_data = [
+                sigmoid_vec(np.dot(self.weights[k], x)+self.biases[k])
+                for x in input_data]
+        return intermediate_data
+
+    def final_feedforward(self, intermediate_data, j):
+        """
+        Feedforward the elements ``x`` in the list
+        ``intermediate_data`` through the network to the output.  The
+        elements in ``intermediate_data`` are assumed to be inputs to
+        the ``j``th layer."""
+        for k in range(j, len(self.weights)):
+            output_data = [
+                sigmoid_vec(np.dot(self.weights[k], a)+self.biases[k])
+                for a in intermediate_data]
+        return output_data
 
 #### Miscellaneous functions
 def minimal_cross_entropy(training_data):
