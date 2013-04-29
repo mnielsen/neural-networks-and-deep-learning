@@ -2,13 +2,14 @@
 backprop2
 ~~~~~~~~~
 
-This is a minor variation on the backprop module.  The most
-significant changes are: (1) It uses the cross-entropy cost by
-default, instead of the quadratic cost; and (2) The weights and bias
-for each neuron are initialized as a Gaussian random variable whose
-mean is zero and standard deviation is one over the square-root of the
-neuron's fan-in (instead of having mean zero and standard deviation
-one).
+This is a minor variation on the backprop module.  The main changes
+are: (1) It uses the cross-entropy cost by default, instead of the
+quadratic cost; (2) The weights and bias for each neuron are
+initialized as a Gaussian random variable whose mean is zero and
+standard deviation is one over the square-root of the neuron's fan-in
+(instead of having mean zero and standard deviation one); and (3) The
+feedforward method has been generalized to make it easier to propagate
+activations through part of the network.
 """
 
 #### Libraries
@@ -37,9 +38,14 @@ class Network():
         self.weights = [np.random.randn(y, x)/np.sqrt(y) 
                         for x, y in zip(sizes[:-1], sizes[1:])]
 
-    def feedforward(self, a):
-        "Return the output of the network if ``a`` is input."
-        for b, w in zip(self.biases, self.weights):
+    def feedforward(self, a, start=0, end=None):
+        """Return the result from feeding forward the activation ``a``
+        from layer ``start`` through to layer ``end``.  Note that if
+        ``end`` is ``None`` then this is interpreted as ``end =
+        self.num_layers``, i.e., the default behaviour is to propagate
+        through to the end of the network."""
+        end = self.num_layers if end == None
+        for b, w in zip(self.biases, self.weights)[start:end]:
             a = sigmoid_vec(np.dot(w, a)+b)
         return a
 
@@ -167,29 +173,6 @@ class Network():
         return sum(int(x == y) 
                    for x, y in zip(training_results, actual_training_results))
 
-    def initial_feedforward(self, input_data, j):
-        """
-        Feedforward the elements ``x`` in the list ``input_data``
-        through the network until the ``j``th layer.  Return the list
-        of activations from the ``j``th layer.
-        """
-        for k in range(j):
-            intermediate_data = [
-                sigmoid_vec(np.dot(self.weights[k], x)+self.biases[k])
-                for x in input_data]
-        return intermediate_data
-
-    def final_feedforward(self, intermediate_data, j):
-        """
-        Feedforward the elements ``x`` in the list
-        ``intermediate_data`` through the network to the output.  The
-        elements in ``intermediate_data`` are assumed to be inputs to
-        the ``j``th layer."""
-        for k in range(j, len(self.weights)):
-            output_data = [
-                sigmoid_vec(np.dot(self.weights[k], a)+self.biases[k])
-                for a in intermediate_data]
-        return output_data
 
 #### Miscellaneous functions
 def minimal_cross_entropy(training_data):

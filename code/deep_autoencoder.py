@@ -100,7 +100,8 @@ class DeepAutoencoder(Network):
         data for the first layer of the network, and is a list of
         entries ``x``."""
         self.train_nested_autoencoder(
-            j, double(self.initial_feedforward(training_data, j)),
+            j, double(
+                [self.feedforward(x, start=0, end=j) for x in training_data]),
             epochs, mini_batch_size, eta, lmbda)
 
     def feature(self, j, k):
@@ -109,7 +110,7 @@ class DeepAutoencoder(Network):
         activated, and all others are not active.  """
         a = np.zeros((self.sizes[j], 1))
         a[k] = 1.0
-        return self.final_feedforward([a], j)[0]
+        return self.feedforward(a, start=j, end=self.num_layers)
 
 def double(l):
     return [(x, x) for x in l]
