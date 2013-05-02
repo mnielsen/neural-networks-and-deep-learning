@@ -27,7 +27,7 @@ def autoencoder_results(hidden_units):
     training_data, test_inputs, actual_test_results = \
         mnist_loader.load_data_nn()
     net = train_autoencoder(hidden_units, training_data)
-    plot_test_results(net, test_inputs, actual_test_results)
+    plot_test_results(net, test_inputs)
 
 def train_autoencoder(hidden_units, training_data):
     "Return a trained autoencoder."
@@ -36,7 +36,7 @@ def train_autoencoder(hidden_units, training_data):
     net.SGD(autoencoder_training_data, 6, 10, 0.01, 0.05)
     return net
 
-def plot_test_results(net, test_inputs, actual_test_results):
+def plot_test_results(net, test_inputs):
     """
     Plot the results after passing the first ten test MNIST digits through
     the autoencoder ``net``."""
