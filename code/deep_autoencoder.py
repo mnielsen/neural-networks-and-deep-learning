@@ -74,10 +74,10 @@ class DeepAutoencoder(Network):
                  lmbda[-1])
 
     def train_nested_autoencoder(
-        self, j, training_data, epochs, mini_batch_size, eta, lmbda):
+        self, j, encoded_training_data, epochs, mini_batch_size, eta, lmbda):
         """
         Train the nested autoencoder that starts at layer ``j`` in the
-        deep autoencoder.  Note that ``training_data`` should be a
+        deep autoencoder.  Note that ``encoded_training_data`` is a
         list with entries of the form ``(x, x)``, where the ``x`` are
         encoded training inputs for layer ``j``."""
         net = Network([self.layers[j], self.layers[j+1], self.layers[j]])
@@ -85,7 +85,7 @@ class DeepAutoencoder(Network):
         net.biases[1] = self.biases[-j-1]
         net.weights[0] = self.weights[j]
         net.weights[1] = self.weights[-j-1]
-        net.SGD(training_data, epochs, mini_batch_size, eta, lmbda)
+        net.SGD(encoded_training_data, epochs, mini_batch_size, eta, lmbda)
         self.biases[j] = net.biases[0]
         self.biases[-j-1] = net.biases[1]
         self.weights[j] = net.weights[0]
