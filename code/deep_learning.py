@@ -37,12 +37,14 @@ def SGD_final_layer(
     ``training_data`` is the input to the whole Network, not the
     encoded training data input to the final layer. 
     """
-    net = Network([self.sizes[-2], self.sizes[-1]])
     encoded_training_data = [
         (self.feedforward(x, start=0, end=-1), y) for x, y in training_data]
+    net = Network([self.sizes[-2], self.sizes[-1]])
+    net.biases[-1] = self.biases[-1]
+    net.weights[-1] = self.weights[-1]
     net.SGD(encoded_training_data, epochs, mini_batch_size, eta,
             lmbda, test, test_inputs, actual_test_results)
-    self.biases[-1] = self.biases[-1]
+    self.biases[-1] = net.biases[-1]
     self.weights[-1] = net.weights[-1]
 
 
