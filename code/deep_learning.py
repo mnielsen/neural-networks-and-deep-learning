@@ -35,12 +35,16 @@ def SGD_final_layer(
     """
     Run SGD on the final layer of the Network ``self``.  Note that
     ``training_data`` is the input to the whole Network, not the
-    encoded training data input to the final layer.
+    encoded training data input to the final layer. 
     """
     net = Network([self.sizes[-2], self.sizes[-1]])
-    encoded_training_data = self.feedforward(training_data, start=0, end=-1)
+    encoded_training_data = [
+        (self.feedforward(x, start=0, end=-1), y) for x, y in training_data]
     net.SGD(encoded_training_data, epochs, mini_batch_size, eta,
             lmbda, test, test_inputs, actual_test_results)
+    self.biases[-1] = self.biases[-1]
+    self.weights[-1] = net.weights[-1]
+
 
 # Add the SGD_final_layer method to the Network class
 Network.SGD_final_layer = SGD_final_layer
