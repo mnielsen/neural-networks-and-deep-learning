@@ -42,9 +42,9 @@ class Network():
         """Return the result from feeding forward the activation ``a``
         from layer ``start`` through to layer ``end``.  Note that if
         ``end`` is ``None`` then this is interpreted as ``end =
-        self.num_layers``, i.e., the default behaviour is to propagate
+        self.num_layers-1``, i.e., the default behaviour is to propagate
         through to the end of the network."""
-        if end == None: end = self.num_layers
+        if end == None: end = self.num_layers-1
         for b, w in zip(self.biases, self.weights)[start:end]:
             a = sigmoid_vec(np.dot(w, a)+b)
         return a
