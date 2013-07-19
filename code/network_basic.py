@@ -53,13 +53,13 @@ class Network():
         but slows things down substantially.  If ``test`` is set, then
         appropriate ``test_data`` must be supplied.
         """
-        if test: n_test = len(test_inputs)
+        if test: n_test = len(test_data)
         n = len(training_data)
         for j in xrange(epochs):
             random.shuffle(training_data)
             mini_batches = [
                 training_data[k:k+mini_batch_size]
-                for k in xrange(0, len(training_data), mini_batch_size)]
+                for k in xrange(0, n, mini_batch_size)]
             for mini_batch in mini_batches:
                 self.backprop(mini_batch, n, eta, lmbda)
             if test:
@@ -117,9 +117,9 @@ class Network():
         network outputs the correct result. Note that the neural
         network's output is assumed to be the index of whichever
         neuron in the final layer has the highest activation."""
-        test_results = [np.argmax(self.feedforward(x)) for x in test_data[0]]
-        return sum(int(x == y) 
-                   for x, y in zip(test_results, test_data[1]))
+        test_results = [(np.argmax(self.feedforward(x)), y) 
+                        for (x, y) in test_data]
+        return sum(int(x == y) for (x, y) in test_results)
         
     def cost(self, x, y):
         """Return the quadratic cost associated to the network, with
