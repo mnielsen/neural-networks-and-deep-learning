@@ -42,7 +42,7 @@ class Network():
         return a
 
     def SGD(self, training_data, epochs, mini_batch_size, eta,
-            lmbda, test=False, test_data=None)
+            lmbda, test=False, test_data=None):
         """Train the neural network using mini-batch stochastic
         gradient descent.  The ``training_data`` is a list of tuples
         ``(x, y)`` representing the training inputs and the desired
@@ -64,16 +64,16 @@ class Network():
                 self.backprop(mini_batch, n, eta, lmbda)
             if test:
                 print "Epoch {}: {} / {}".format(
-                    j, self.evaluate(test_inputs, actual_test_results), n_test)
+                    j, self.evaluate(test_data), n_test)
             else:
                 print "Epoch %s complete" % j
 
-    def backprop(self, training_data, T, eta, lmbda):
+    def backprop(self, training_data, n, eta, lmbda):
         """Update the network's weights and biases by applying a
         single iteration of gradient descent using backpropagation.
         The ``training_data`` is a list of tuples ``(x, y)``.  It need
         not include the entire training data set --- it might be a
-        mini-batch, or even a single training example.  ``T`` is the
+        mini-batch, or even a single training example.  ``n`` is the
         size of the total training set (which may not be the same as
         the size of ``training_data``).  The other parameters are
         self-explanatory."""
@@ -108,19 +108,18 @@ class Network():
                 nabla_b[-l] += delta
                 nabla_w[-l] += np.dot(delta, activations[-l-1].transpose())
         # Add the regularization terms to the gradient for the weights
-        nabla_w = [nw+(lmbda*B/T)*w for nw, w in zip(nabla_w, self.weights)]
+        nabla_w = [nw+(lmbda*B/n)*w for nw, w in zip(nabla_w, self.weights)]
         self.weights = [w-eta*nw for w, nw in zip(self.weights, nabla_w)]
         self.biases = [b-eta*nb for b, nb in zip(self.biases, nabla_b)]
 
-    def evaluate(self, test_inputs, actual_test_results):
-        """Return the number of ``test_inputs`` for which the neural
-        network outputs the correct result, i.e., the same result as
-        given in ``actual_test_results``.  Note that the neural
+    def evaluate(self, test_data):
+        """Return the number of test inputs for which the neural
+        network outputs the correct result. Note that the neural
         network's output is assumed to be the index of whichever
         neuron in the final layer has the highest activation."""
-        test_results = [np.argmax(self.feedforward(x)) for x in test_inputs]
+        test_results = [np.argmax(self.feedforward(x)) for x in test_data[0]]
         return sum(int(x == y) 
-                   for x, y in zip(test_results, actual_test_results))
+                   for x, y in zip(test_results, test_data[1]))
         
     def cost(self, x, y):
         """Return the quadratic cost associated to the network, with
@@ -135,23 +134,10 @@ class Network():
         between the output activations and the desired output, ``y``."""
         return (output_activations-y) 
 
-    def evaluate_training_results(self, training_data):
-        """Return the number of elements of the ``training_data`` that
-        are correctly classified."""
-        training_results = [np.argmax(self.feedforward(x[0])) for x in 
-                            training_data]
-        actual_training_results = [np.argmax(x[1]) for x in training_data]
-        return sum(int(x == y) 
-                   for x, y in zip(training_results, actual_training_results))
-
 #### Miscellaneous functions
 def sigmoid(z):
-    """The sigmoid function.  Note that it checks to see whether ``z``
-    is very negative, to avoid overflow errors in the exponential
-    function.  No corresponding test of ``z`` being very positive is
-    necessary --- ordinary Python arithmetic deals just fine with that
-    case."""
-    return 0.0 if z < -700 else 1.0/(1.0+np.exp(-z))
+    """The sigmoid function."""
+    return 1.0/(1.0+np.exp(-z))
 
 sigmoid_vec = np.vectorize(sigmoid)
 
