@@ -21,8 +21,8 @@ import numpy as np
 
 def main():
     training_set, validation_set, test_set = load_data()
-    images = get_images(training_set)
-    plot_mnist_digit(images[0])
+    images = get_images(training_set)[:100]
+    plot_10_by_10_images(images)
 
 #### Plotting
 def plot_images_together(images):
@@ -36,6 +36,21 @@ def plot_images_together(images):
     ax.matshow(image, cmap = matplotlib.cm.binary)
     plt.xticks(np.array([]))
     plt.yticks(np.array([]))
+    plt.show()
+
+def plot_10_by_10_images(images):
+    """ Plot 100 MNIST images in a 10 by 10 table. Note that we crop
+    the images so that they appear reasonably close together.  The
+    image is post-processed to give the appearance of being continued."""
+    fig = plt.figure()
+    images = [image[3:25, 3:25] for image in images]
+    #image = np.concatenate(images, axis=1)
+    for x in range(10):
+        for y in range(10):
+            ax = fig.add_subplot(10, 10, 10*y+x)
+            ax.matshow(images[10*y+x], cmap = matplotlib.cm.binary)
+            plt.xticks(np.array([]))
+            plt.yticks(np.array([]))
     plt.show()
 
 def plot_images_separately(images):
@@ -115,9 +130,9 @@ def load_data():
     return (training_set, validation_set, test_set)
 
 def get_images(training_set):
-    """ Return a list containing the first six images from the MNIST
+    """ Return a list containing the first 100 images from the MNIST
     data set. Each image is represented as a 2-d numpy array."""
-    flattened_images = training_set[0][:6]
+    flattened_images = training_set[0][:100]
     return [np.reshape(f, (-1, 28)) for f in flattened_images]
 
 #### Main
