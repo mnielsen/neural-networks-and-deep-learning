@@ -19,10 +19,10 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
-def main():
+def main(j):
     training_set, validation_set, test_set = load_data()
     images = get_images(training_set)[:100]
-    plot_10_by_10_images(images)
+    plot_mnist_digit(images[j])
 
 #### Plotting
 def plot_images_together(images):
