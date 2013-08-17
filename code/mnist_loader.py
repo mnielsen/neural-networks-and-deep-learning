@@ -7,10 +7,9 @@ structures that are returned, see the doc strings for ``load_data``
 and ``load_data_wrapper``.  In practice, ``load_data_wrapper`` is the
 function usually called by our neural network code.
 
-Note that the code requires the file ``../data/mnist.pkl``.  This is not
-included in the repository.  It may be downloaded from:
-
-http://www.iro.umontreal.ca/~lisa/deep/data/mnist/mnist.pkl.gz
+Note that the code requires the file ``../data/mnist.pkl``.  If it's
+not already in that directory then you should unzip the file
+``../data/mnist.pkl.gz``.
 """
 
 #### Libraries

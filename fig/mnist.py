@@ -4,11 +4,9 @@ mnist
 
 Draws images based on the MNIST data.
 
-Note that the code requires the file ``../../data/mnist.pkl``.  This is not
-included in the repository.  It may be downloaded from:
-
-http://www.iro.umontreal.ca/~lisa/deep/data/mnist/mnist.pkl.gz
-"""
+Note that the code requires the file ``../data/mnist.pkl``.  If it's
+not already in that directory then you should unzip the file
+``../data/mnist.pkl.gz``."""
 
 #### Libraries
 # Standard library
