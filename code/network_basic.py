@@ -1,6 +1,6 @@
 """
- network_basic
-~~~~~~~~~~~~~~
+network_basic
+~~~~~~~~~~~~~
 
 A module to implement the stochastic gradient descent learning
 algorithm for a feedforward neural network.  Gradients are calculated
@@ -42,18 +42,16 @@ class Network():
         return a
 
     def SGD(self, training_data, epochs, mini_batch_size, eta,
-            lmbda, test=False, test_data=None):
+            lmbda, test_data=None):
         """Train the neural network using mini-batch stochastic
         gradient descent.  The ``training_data`` is a list of tuples
         ``(x, y)`` representing the training inputs and the desired
         outputs.  The other non-optional parameters are
-        self-explanatory.  Set ``test`` to ``True`` to evaluate the
-        network against the test data after each epoch, and to print
-        out partial progress.  This is useful for tracking progress,
-        but slows things down substantially.  If ``test`` is set, then
-        appropriate ``test_data`` must be supplied.
-        """
-        if test: n_test = len(test_data)
+        self-explanatory.  If ``test_data`` is provided then the
+        network will be evaluated against the test data after each
+        epoch, and partial progress printed out.  This is useful for
+        tracking progress, but slows things down substantially."""
+        if test_data: n_test = len(test_data)
         n = len(training_data)
         for j in xrange(epochs):
             random.shuffle(training_data)
@@ -62,7 +60,7 @@ class Network():
                 for k in xrange(0, n, mini_batch_size)]
             for mini_batch in mini_batches:
                 self.backprop(mini_batch, n, eta, lmbda)
-            if test:
+            if test_data:
                 print "Epoch {}: {} / {}".format(
                     j, self.evaluate(test_data), n_test)
             else:
