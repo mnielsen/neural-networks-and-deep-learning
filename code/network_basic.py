@@ -94,11 +94,11 @@ class Network():
             nabla_b[-1] += delta
             nabla_w[-1] += np.dot(delta, activations[-2].transpose())
             # Note that the variable l in the loop below is used a
-            # little differently to the book.  Here, l = 1 means the
-            # last layer of neurons, l = 2 is the second-last layer,
-            # and so on.  It's a renumbering of the scheme used in the
-            # book, used to take advantage of the fact that Python can
-            # use negative indices in lists.
+            # little differently to the notation in Chapter 2 of the book.
+            # Here, l = 1 means the last layer of neurons, l = 2 is the
+            # second-last layer, and so on.  It's a renumbering of the
+            # scheme used in the book, used here to take advantage of the
+            # fact that Python can use negative indices in lists.
             for l in xrange(2, self.num_layers):
                 z = zs[-l]
                 spv = sigmoid_prime_vec(z)
