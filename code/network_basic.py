@@ -93,11 +93,11 @@ class Network():
             nabla_b[-1] += delta
             nabla_w[-1] += np.dot(delta, activations[-2].transpose())
             # Note that the variable l in the loop below is used a
-            # little differently to the book.  Here, l = 1 means the
-            # last layer of neurons, l = 2 is the second-last layer,
-            # and so on.  It's a renumbering of the scheme used in the
-            # book, used to take advantage of the fact that Python can
-            # use negative indices in lists.
+            # little differently to the notation in Chapter 2 of the book.
+            # Here, l = 1 means the last layer of neurons, l = 2 is the
+            # second-last layer, and so on.  It's a renumbering of the
+            # scheme used in the book, used here to take advantage of the
+            # fact that Python can use negative indices in lists.
             for l in xrange(2, self.num_layers):
                 z = zs[-l]
                 spv = sigmoid_prime_vec(z)
@@ -116,11 +116,6 @@ class Network():
                         for (x, y) in test_data]
         return sum(int(x == y) for (x, y) in test_results)
         
-    def cost(self, x, y):
-        """Return the quadratic cost associated to the network, with
-        input ``x`` and desired output ``y``."""
-        return np.sum((self.feedforward(x)-y)**2)/2.0
-
     def cost_derivative(self, output_activations, y):
         """Return the vector of partial derivatives \partial C_x /
         \partial a for the output activations, ``a``."""
