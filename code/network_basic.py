@@ -42,7 +42,7 @@ class Network():
         return a
 
     def SGD(self, training_data, epochs, mini_batch_size, eta,
-            lmbda, test_data=None):
+            test_data=None):
         """Train the neural network using mini-batch stochastic
         gradient descent.  The ``training_data`` is a list of tuples
         ``(x, y)`` representing the training inputs and the desired
@@ -59,14 +59,14 @@ class Network():
                 training_data[k:k+mini_batch_size]
                 for k in xrange(0, n, mini_batch_size)]
             for mini_batch in mini_batches:
-                self.backprop(mini_batch, n, eta, lmbda)
+                self.backprop(mini_batch, n, eta)
             if test_data:
                 print "Epoch {}: {} / {}".format(
                     j, self.evaluate(test_data), n_test)
             else:
                 print "Epoch %s complete" % j
 
-    def backprop(self, training_data, n, eta, lmbda):
+    def backprop(self, training_data, n, eta):
         """Update the network's weights and biases by applying a
         single iteration of gradient descent using backpropagation.
         The ``training_data`` is a list of tuples ``(x, y)``.  It need
@@ -77,7 +77,6 @@ class Network():
         self-explanatory."""
         nabla_b = [np.zeros(b.shape) for b in self.biases]
         nabla_w = [np.zeros(w.shape) for w in self.weights]
-        B = len(training_data)
         for x, y in training_data:
             # feedforward
             activation = x
@@ -105,8 +104,6 @@ class Network():
                 delta = np.dot(self.weights[-l+1].transpose(), delta) * spv
                 nabla_b[-l] += delta
                 nabla_w[-l] += np.dot(delta, activations[-l-1].transpose())
-        # Add the regularization terms to the gradient for the weights
-        nabla_w = [nw+(lmbda*B/n)*w for nw, w in zip(nabla_w, self.weights)]
         self.weights = [w-eta*nw for w, nw in zip(self.weights, nabla_w)]
         self.biases = [b-eta*nb for b, nb in zip(self.biases, nabla_b)]
 
@@ -121,15 +118,12 @@ class Network():
         
     def cost(self, x, y):
         """Return the quadratic cost associated to the network, with
-        input ``x`` and desired output ``y``.  Note that there is no
-        regularization."""
+        input ``x`` and desired output ``y``."""
         return np.sum((self.feedforward(x)-y)**2)/2.0
 
     def cost_derivative(self, output_activations, y):
         """Return the vector of partial derivatives \partial C_x /
-        \partial a for the output activations, ``a``.  For the
-        unregularized quadratic cost this is just the difference
-        between the output activations and the desired output, ``y``."""
+        \partial a for the output activations, ``a``."""
         return (output_activations-y) 
 
 #### Miscellaneous functions
