@@ -22,15 +22,13 @@ from naive ideas."""
 from collections import defaultdict
 
 # My libraries
-import mnist_loader # to load the MNIST data. For details on the
-                    # format the data is loaded in, see the module's
-                    # code
+import mnist_loader
 
 def main():
     training_data, validation_data, test_data = mnist_loader.load_data()
     # training phase: compute the average darknesses for each digit,
     # based on the training data
-    avgs = avg_darkness(training_data)
+    avgs = avg_darknesses(training_data)
     # testing phase: see how many of the test images are classified
     # correctly
     num_correct = sum(int(guess_digit(image, avgs) == digit)
@@ -38,19 +36,19 @@ def main():
     print "Baseline classifier using average darkness of image."
     print "%s of %s values correct." % (num_correct, len(test_data[1]))
 
-def avg_darkness(training_data):
+def avg_darknesses(training_data):
     """ Return a defaultdict whose keys are the digits 0 through 9.
-    For each digit we compute the average darkness of images
-    containing that digit.  The darkness for any particular image is
-    just the sum of the darknesses for each pixel."""
+    For each digit we compute a value which is the average darkness of
+    training images containing that digit.  The darkness for any
+    particular image is just the sum of the darknesses for each pixel."""
     digit_counts = defaultdict(int)
-    darkness = defaultdict(float)
-    avgs = defaultdict(float)
+    darknesses = defaultdict(float)
     for image, digit in zip(training_data[0], training_data[1]):
         digit_counts[digit] += 1
-        darkness[digit] += sum(image)
+        darknesses[digit] += sum(image)
+    avgs = defaultdict(float)
     for digit, n in digit_counts.iteritems():
-        avgs[digit] = darkness[digit] / n
+        avgs[digit] = darknesses[digit] / n
     return avgs
 
 def guess_digit(image, avgs):
