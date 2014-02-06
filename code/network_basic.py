@@ -80,8 +80,8 @@ class Network():
         for x, y in training_data:
             # feedforward
             activation = x
-            activations = [x] # list to store all the activations
-            zs = [] # list to store all the z vectors
+            activations = [x] # list to store all the activations, layer by layer
+            zs = [] # list to store all the z vectors, layer by layer
             for b, w in zip(self.biases, self.weights):
                 z = np.dot(w, activation)+b
                 zs.append(z)
