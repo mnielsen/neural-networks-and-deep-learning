@@ -66,15 +66,13 @@ class Network():
             else:
                 print "Epoch %s complete" % j
 
-    def backprop(self, training_data, n, eta):
-        """Update the network's weights and biases by applying a
-        single iteration of gradient descent using backpropagation.
-        The ``training_data`` is a list of tuples ``(x, y)``.  It need
-        not include the entire training data set --- it might be a
-        mini-batch, or even a single training example.  ``n`` is the
-        size of the total training set (which may not be the same as
-        the size of ``training_data``).  The other parameters are
-        self-explanatory."""
+    def backprop(self, training_data, eta):
+        """Update the network's weights and biases by applying a single
+        iteration of gradient descent using backpropagation.  The
+        ``training_data`` is a list of tuples ``(x, y)``.  It need not
+        include the entire training data set --- it might be a
+        mini-batch, or even a single training example.  ``eta`` is the
+        learning rate."""
         nabla_b = [np.zeros(b.shape) for b in self.biases]
         nabla_w = [np.zeros(w.shape) for w in self.weights]
         for x, y in training_data:
