@@ -59,7 +59,7 @@ class Network():
                 training_data[k:k+mini_batch_size]
                 for k in xrange(0, n, mini_batch_size)]
             for mini_batch in mini_batches:
-                self.backprop(mini_batch, n, eta)
+                self.backprop(mini_batch, eta)
             if test_data:
                 print "Epoch {}: {} / {}".format(
                     j, self.evaluate(test_data), n_test)
