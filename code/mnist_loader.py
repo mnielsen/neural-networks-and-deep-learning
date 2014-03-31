@@ -6,19 +6,15 @@ A library to load the MNIST image data.  For details of the data
 structures that are returned, see the doc strings for ``load_data``
 and ``load_data_wrapper``.  In practice, ``load_data_wrapper`` is the
 function usually called by our neural network code.
-
-Note that the code requires the file ``../data/mnist.pkl``.  If it's
-not already in that directory then you should unzip the file
-``../data/mnist.pkl.gz``.
 """
 
 #### Libraries
 # Standard library
 import cPickle
+import gzip
 
 # Third-party libraries
 import numpy as np
-
 
 def load_data():
     """Return the MNIST data as a tuple containing the training data,
@@ -43,7 +39,7 @@ def load_data():
     That's done in the wrapper function ``load_data_wrapper()``, see
     below.
     """
-    f = open('../data/mnist.pkl', 'rb')
+    f = gzip.open('../data/mnist.pkl.gz', 'rb')
     training_data, validation_data, test_data = cPickle.load(f)
     f.close()
     return (training_data, validation_data, test_data)
