@@ -62,15 +62,18 @@ class Network():
         return a
 
     def SGD(self, training_data, epochs, mini_batch_size, eta,
-            test_data=None):
-        """Train the neural network using mini-batch stochastic
-        gradient descent.  The ``training_data`` is a list of tuples
-        ``(x, y)`` representing the training inputs and the desired
-        outputs.  The other non-optional parameters are
-        self-explanatory.  If ``test_data`` is provided then the
-        network will be evaluated against the test data after each
-        epoch, and partial progress printed out.  This is useful for
-        tracking progress, but slows things down substantially."""
+            print_cost=False, test_data=None):
+        """Train the neural network using mini-batch stochastic gradient
+        descent.  The ``training_data`` is a list of tuples ``(x, y)``
+        representing the training inputs and the desired outputs.  The
+        other non-optional parameters are self-explanatory.  If
+        ``print_cost`` is true then the cost is printed after each
+        epoch.  If ``test_data`` is provided then the network will be
+        evaluated against the test data after each epoch, and partial
+        progress printed out.  This is useful for tracking progress,
+        but slows things down substantially.
+
+        """
         if test_data: n_test = len(test_data)
         n = len(training_data)
         for j in xrange(epochs):
@@ -80,8 +83,11 @@ class Network():
                 for k in xrange(0, n, mini_batch_size)]
             for mini_batch in mini_batches:
                 self.update_mini_batch(mini_batch, eta)
+            if print_cost:
+                print "Epoch {} cost on training data: {}".format(
+                    j, self.cost(training_data))
             if test_data:
-                print "Epoch {}: {} / {}".format(
+                print "Epoch {} accuracy on test data: {} / {}".format(
                     j, self.evaluate(test_data), n_test)
             else:
                 print "Epoch %s complete" % j
@@ -142,6 +148,13 @@ class Network():
         test_results = [(np.argmax(self.feedforward(x)), y) 
                         for (x, y) in test_data]
         return sum(int(x == y) for (x, y) in test_results)
+
+    def cost(self, training_data):
+        c = 0
+        for x, y in training_data:
+            output = self.feedforward(x)
+            c += sum(-y*np.log(output)-(1-y)*np.log(1-output))[0]
+        return c
         
 #### Miscellaneous functions
 def sigmoid(z):
