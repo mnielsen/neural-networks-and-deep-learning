@@ -1,12 +1,14 @@
-"""
-network_basic
-~~~~~~~~~~~~~
+"""network2
+~~~~~~~~~~~
 
-A module to implement the stochastic gradient descent learning
-algorithm for a feedforward neural network.  Gradients are calculated
-using backpropagation.  Note that I have focused on making the code
-simple, easily readable, and easily modifiable.  It is not optimized,
-and omits many desirable features.
+An improved version of network1, implementing the stochastic gradient
+descent learning algorithm for a feedforward neural network.
+Improvements include the addition of the cross-entropy cost function,
+regularization, and improved initialization of network weights.  Note
+that I have focused on making the code simple, easily readable, and
+easily modifiable.  It is not optimized, and omits many desirable
+features.
+
 """
 
 #### Libraries
@@ -17,27 +19,42 @@ import random
 import numpy as np
 
 
-#### Output error functions for quadratic cost and cross-entropy cost
-def delta_quadratic(z, output_activations, y):
-    """Return the error delta from the output layer.  The computation is
-    carried out for the quadratic cost function.
-    """
-    return (output_activations-y) * sigmoid_prime_vec(z)
+#### Define the quadratic and cross-entropy cost functions.  
 
-def delta_cross_entropy(z, output_activations, y):
-    """Return the error delta from the output layer.  The computation is
-    carried out for the cross-entropy cost function.  Note that the
-    variable z is not used in the function.  It is included in the
-    function's parameters in order to make the parameters consistent
-    with the delta function for other cost functions.
-    """
-    return (output_activations-y)
+class QuadraticCost:
+
+    def fn(self, a, y):
+        """Return the cost associated with an output ``a`` and desired output
+        ``y``.
+        """
+        return 0.5*np.linalg.norm(a-y)**2
+
+    def delta(self, z, a, y):
+        "Return the error delta from the output layer."
+        return (a-y) * sigmoid_prime_vec(z)
+
+
+class CrossEntropyCost:
+
+    def fn(self, a, y):
+        """Return the cost associated with an output ``a`` and desired output
+        ``y``.
+        """
+        return np.sum(-y*np.log(a)-(1-y)*np.log(1-a))
+
+    def delta(self, z, a, y):
+        """Return the error delta from the output layer.  Note that the
+        variable z is not used in the function.  It is included in the
+        function's parameters in order to make the parameters consistent
+        with the delta function for other cost functions.
+        """
+        return (a-y)
 
 
 #### Main Network class
 class Network():
 
-    def __init__(self, sizes, output_error=delta_cross_entropy):
+    def __init__(self, sizes, cost=CrossEntropyCost()):
         """The list ``sizes`` contains the number of neurons in the
         respective layers of the network.  For example, if the list
         was [2, 3, 1] then it would be a three-layer network, with the
@@ -53,7 +70,7 @@ class Network():
         self.biases = [np.random.randn(y, 1) for y in sizes[1:]]
         self.weights = [np.random.randn(y, x) 
                         for x, y in zip(sizes[:-1], sizes[1:])]
-        self.output_error = output_error
+        self.cost=cost
 
     def feedforward(self, a):
         "Return the output of the network if ``a`` is input."
@@ -62,19 +79,21 @@ class Network():
         return a
 
     def SGD(self, training_data, epochs, mini_batch_size, eta,
-            print_cost=False, test_data=None):
+            lmbda = 0.0, print_cost=False, data=None):
         """Train the neural network using mini-batch stochastic gradient
         descent.  The ``training_data`` is a list of tuples ``(x, y)``
         representing the training inputs and the desired outputs.  The
-        other non-optional parameters are self-explanatory.  If
-        ``print_cost`` is true then the cost is printed after each
-        epoch.  If ``test_data`` is provided then the network will be
-        evaluated against the test data after each epoch, and partial
-        progress printed out.  This is useful for tracking progress,
-        but slows things down substantially.
+        other non-optional parameters are self-explanatory, as is the
+        regularization parameter ``lmbda``.  If ``print_cost`` is true
+        then the cost is printed after each epoch.  If ``data`` is
+        provided then the network will be evaluated against that data
+        after each epoch, and partial progress printed out.  This is
+        useful for tracking progress, but slows things down
+        substantially.  Note that ``data`` will usually be either the
+        validation or test data.
 
         """
-        if test_data: n_test = len(test_data)
+        if data: n_data = len(data)
         n = len(training_data)
         for j in xrange(epochs):
             random.shuffle(training_data)
@@ -82,28 +101,29 @@ class Network():
                 training_data[k:k+mini_batch_size]
                 for k in xrange(0, n, mini_batch_size)]
             for mini_batch in mini_batches:
-                self.update_mini_batch(mini_batch, eta)
+                self.update_mini_batch(mini_batch, eta, lmbda)
             if print_cost:
                 print "Epoch {} cost on training data: {}".format(
-                    j, self.cost(training_data))
-            if test_data:
-                print "Epoch {} accuracy on test data: {} / {}".format(
-                    j, self.evaluate(test_data), n_test)
-            else:
-                print "Epoch %s complete" % j
+                    j, self.total_cost(training_data, lmbda))
+            if data:
+                print "Epoch {} accuracy on supplied data: {} / {}".format(
+                    j, self.evaluate(data), n_data)
+            print "Epoch %s complete" % j
 
-    def update_mini_batch(self, mini_batch, eta):
-        """Update the network's weights and biases by applying
-        gradient descent using backpropagation to a single mini batch.
-        The ``mini_batch`` is a list of tuples ``(x, y)``, and ``eta``
-        is the learning rate."""
+    def update_mini_batch(self, mini_batch, eta, lmbda):
+        """Update the network's weights and biases by applying gradient
+        descent using backpropagation to a single mini batch.  The
+        ``mini_batch`` is a list of tuples ``(x, y)``, ``eta`` is the
+        learning rate, and ``lmbda`` is the regularization parameter.
+        """
         nabla_b = [np.zeros(b.shape) for b in self.biases]
         nabla_w = [np.zeros(w.shape) for w in self.weights]
         for x, y in mini_batch:
             delta_nabla_b, delta_nabla_w = self.backprop(x, y)
             nabla_b = [nb+dnb for nb, dnb in zip(nabla_b, delta_nabla_b)]
             nabla_w = [nw+dnw for nw, dnw in zip(nabla_w, delta_nabla_w)]
-        self.weights = [w-eta*nw for w, nw in zip(self.weights, nabla_w)]
+        self.weights = [(1-eta*lmbda)*w-eta*nw for w, nw in
+                        zip(self.weights, nabla_w)]
         self.biases = [b-eta*nb for b, nb in zip(self.biases, nabla_b)]
 
     def backprop(self, x, y):
@@ -123,7 +143,7 @@ class Network():
             activation = sigmoid_vec(z)
             activations.append(activation)
         # backward pass
-        delta = self.output_error(zs[-1], activations[-1], y)
+        delta = (self.cost).delta(zs[-1], activations[-1], y)
         nabla_b[-1] = delta
         nabla_w[-1] = np.dot(delta, activations[-2].transpose())
         # Note that the variable l in the loop below is used a little
@@ -149,11 +169,12 @@ class Network():
                         for (x, y) in test_data]
         return sum(int(x == y) for (x, y) in test_results)
 
-    def cost(self, training_data):
+    def total_cost(self, training_data, lmbda):
         c = 0
         for x, y in training_data:
-            output = self.feedforward(x)
-            c += sum(-y*np.log(output)-(1-y)*np.log(1-output))[0]
+            a = self.feedforward(x)
+            c += self.cost.fn(a, y)
+        c += 0.5*sum(np.linalg.norm(w)**2 for w in self.weights)
         return c
         
 #### Miscellaneous functions
