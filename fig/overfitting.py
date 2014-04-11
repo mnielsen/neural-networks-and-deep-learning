@@ -8,10 +8,12 @@ Plot graphs to illustrate the problem of overfitting.
 # Standard library
 import imp
 import json
+import sys
 
 # My library
-mnist_loader = imp.load_source('mnist_loader', '../code/mnist_loader.py')
-network2 = imp.load_source('network2', '../code/network2.py')
+sys.path.append('../code/')
+import mnist_loader
+import network2
 
 # Third-party libraries
 import matplotlib.pyplot as plt
