@@ -2,7 +2,8 @@
 overfitting
 ~~~~~~~~~~~
 
-Plot graphs to illustrate the problem of overfitting.
+Plot graphs to illustrate the problem of overfitting.  Must be imported
+as a module, and run with overfitting.main(filename, lmbda).
 """
 
 # Standard library
@@ -28,26 +29,28 @@ import random
 random.seed(12345678)
 
 
-def main():
-    run_network()
-    make_plots()
+def main(filename, lmbda=0.0):
+    """filename is the name of the file where the results will be stored.
+    lmbda is the regularization parameter."""
+    run_network(filename, lmbda)
+    make_plots(filename)
                        
-def run_network():
+def run_network(filename, lmbda=0.0):
     training_data, validation_data, test_data = mnist_loader.load_data_wrapper()
     net = network2.Network([784, 30, 10], cost=network2.CrossEntropyCost())
     test_cost, test_accuracy, training_cost, training_accuracy \
         = net.SGD(training_data[:1000], NUM_EPOCHS, 10, 0.05,
-                  evaluation_data=test_data, 
+                  evaluation_data=test_data, lmbda = lmbda,
                   monitor_evaluation_cost=True, 
                   monitor_evaluation_accuracy=True, 
                   monitor_training_cost=True, 
                   monitor_training_accuracy=True)
-    f = open("overfitting_results.json", "w")
+    f = open(filename, "w")
     json.dump([test_cost, test_accuracy, training_cost, training_accuracy], f)
     f.close()
 
-def make_plots():
-    f = open("overfitting_results.json", "r")
+def make_plots(filename):
+    f = open(filename, "r")
     test_cost, test_accuracy, training_cost, training_accuracy \
         = json.load(f)
     f.close()
@@ -70,7 +73,7 @@ def plot_test_accuracy(test_accuracy):
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.plot(np.arange(40, NUM_EPOCHS, 1), 
-            [accuracy/100.0 for accuracy in evaluation_accuracy[40:NUM_EPOCHS]])
+            [accuracy/100.0 for accuracy in test_accuracy[40:NUM_EPOCHS]])
     ax.set_xlim([40, NUM_EPOCHS])
     ax.grid(True)
     ax.set_xlabel('Epoch')
@@ -80,7 +83,7 @@ def plot_test_accuracy(test_accuracy):
 def plot_test_cost(test_cost):
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.plot(np.arange(0, NUM_EPOCHS, 1), evaluation_cost[0:NUM_EPOCHS])
+    ax.plot(np.arange(0, NUM_EPOCHS, 1), test_cost[0:NUM_EPOCHS])
     ax.set_xlim([0, NUM_EPOCHS])
     ax.grid(True)
     ax.set_xlabel('Epoch')
