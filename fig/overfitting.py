@@ -2,8 +2,7 @@
 overfitting
 ~~~~~~~~~~~
 
-Plot graphs to illustrate the problem of overfitting.  Must be imported
-as a module, and run with overfitting.main(filename, lmbda).
+Plot graphs to illustrate the problem of overfitting.  
 """
 
 # Standard library
@@ -20,22 +19,30 @@ import network2
 import matplotlib.pyplot as plt
 import numpy as np
 
-
-# Number of epochs to train for 
-NUM_EPOCHS = 100
-
 # Make results more easily reproducible
 import random
 random.seed(12345678)
 
 
+# Number of epochs to train for 
+NUM_EPOCHS = 100
+
 def main(filename, lmbda=0.0):
-    """filename is the name of the file where the results will be stored.
-    lmbda is the regularization parameter."""
+    """``filename`` is the name of the file where the results will be
+    stored.  ``lmbda`` is the regularization parameter.
+
+    """
     run_network(filename, lmbda)
     make_plots(filename)
                        
 def run_network(filename, lmbda=0.0):
+    """Train the network, and store the results in ``filename``.  Those
+    results can later be used by ``make_plots``.  Note that the
+    results are stored to disk in large part because it's convenient
+    not to have to ``run_network`` each time we want to make a plot
+    (it's slow).
+
+    """
     training_data, validation_data, test_data = mnist_loader.load_data_wrapper()
     net = network2.Network([784, 30, 10], cost=network2.CrossEntropyCost())
     test_cost, test_accuracy, training_cost, training_accuracy \
@@ -50,6 +57,7 @@ def run_network(filename, lmbda=0.0):
     f.close()
 
 def make_plots(filename):
+    """Load the results from ``filename``, and generate the corresponding plots."""
     f = open(filename, "r")
     test_cost, test_accuracy, training_cost, training_accuracy \
         = json.load(f)
@@ -100,3 +108,9 @@ def plot_training_accuracy(training_accuracy):
     ax.set_xlabel('Epoch')
     ax.set_title('Accuracy (%) on the training data')
     plt.show()
+
+if __name__ == "__main__":
+    filename = raw_input("Enter a file name: ")
+    lmbda = float(raw_input(
+        "Enter a value for the regularization parameter, lambda: "))
+    main(filename, lmbda)
