@@ -70,7 +70,8 @@ def make_plots(filename):
 def plot_training_cost(training_cost):
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.plot(np.arange(40, NUM_EPOCHS, 1), training_cost[40:NUM_EPOCHS])
+    ax.plot(np.arange(40, NUM_EPOCHS, 1), training_cost[40:NUM_EPOCHS],
+            color='#2A6EA6')
     ax.set_xlim([40, NUM_EPOCHS])
     ax.grid(True)
     ax.set_xlabel('Epoch')
@@ -81,7 +82,8 @@ def plot_test_accuracy(test_accuracy):
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.plot(np.arange(40, NUM_EPOCHS, 1), 
-            [accuracy/100.0 for accuracy in test_accuracy[40:NUM_EPOCHS]])
+            [accuracy/100.0 for accuracy in test_accuracy[40:NUM_EPOCHS]],
+            color='#2A6EA6')
     ax.set_xlim([40, NUM_EPOCHS])
     ax.grid(True)
     ax.set_xlabel('Epoch')
@@ -91,7 +93,8 @@ def plot_test_accuracy(test_accuracy):
 def plot_test_cost(test_cost):
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.plot(np.arange(0, NUM_EPOCHS, 1), test_cost[0:NUM_EPOCHS])
+    ax.plot(np.arange(0, NUM_EPOCHS, 1), test_cost[0:NUM_EPOCHS],
+            color='#2A6EA6')
     ax.set_xlim([0, NUM_EPOCHS])
     ax.grid(True)
     ax.set_xlabel('Epoch')
@@ -102,7 +105,8 @@ def plot_training_accuracy(training_accuracy):
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.plot(np.arange(0, NUM_EPOCHS, 1), 
-            [accuracy/10.0 for accuracy in training_accuracy])
+            [accuracy/10.0 for accuracy in training_accuracy],
+            color='#2A6EA6')
     ax.set_xlim([0, NUM_EPOCHS])
     ax.grid(True)
     ax.set_xlabel('Epoch')
