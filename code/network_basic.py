@@ -77,8 +77,8 @@ class Network():
             delta_nabla_b, delta_nabla_w = self.backprop(x, y)
             nabla_b = np.add(nabla_b, delta_nabla_b)
             nabla_w = np.add(nabla_w, delta_nabla_w)
-        self.weights = np.substract(self.weights, np.multiply(eta, nabla_w))
-        self.biases = np.substract(self.biases, np.multiply(eta, nabla_b))
+        self.weights = np.subtract(self.weights, np.multiply(eta, nabla_w))
+        self.biases = np.subtract(self.biases, np.multiply(eta, nabla_b))
 
     def backprop(self, x, y):
         """Return a tuple ``(nabla_b, nabla_w)`` representing the
