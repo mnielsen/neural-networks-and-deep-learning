@@ -69,14 +69,14 @@ def make_plot():
     large_vc, large_va, large_tc, large_ta = results[
         "large_weight_initialization"]
     # Convert raw classification numbers to percentages, for plotting
-    default_va = [x/100 for x in default_va]
-    large_va = [x/100 for x in large_va]
+    default_va = [x/100.0 for x in default_va]
+    large_va = [x/100.0 for x in large_va]
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.plot(np.arange(0, 30, 1), default_va, color='#2A6EA6', 
-            label="Default initialization")
-    ax.plot(np.arange(0, 30, 1), large_va, color='#FFA933',
-            label="Large initialization")
+    ax.plot(np.arange(0, 30, 1), large_va, color='#2A6EA6',
+            label="Old approach to weight initialization")
+    ax.plot(np.arange(0, 30, 1), default_va, color='#FFA933', 
+            label="New approach to weight initialization")
     ax.set_xlim([0, 30])
     ax.set_xlabel('Epoch')
     ax.set_ylim([85, 100])
