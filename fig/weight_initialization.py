@@ -27,21 +27,21 @@ import numpy as np
 import random
 random.seed(12345678)
 
-def main():
-    run_network()
-    make_plot()
+def main(filename):
+    run_network(filename)
+    make_plot(filename)
                        
-def run_network():
+def run_network(filename):
     """Train the network using both the default and the large starting
-    weights.  Store the results in weight_initialization.json, where
-    they can later be used by ``make_plots``.
+    weights.  Store the results in the file with name ``filename``,
+    where they can later be used by ``make_plots``.
 
     """
     training_data, validation_data, test_data = mnist_loader.load_data_wrapper()
     net = network2.Network([784, 30, 10], cost=network2.CrossEntropyCost())
     print "Train the network using the default starting weights."
     default_vc, default_va, default_tc, default_ta \
-        = net.SGD(training_data, 30, 10, 0.01,
+        = net.SGD(training_data[:500], 100, 10, 0.01,
                   evaluation_data=validation_data, lmbda = 0.002,
                   monitor_evaluation_accuracy=True)
     print "Train the network using the large starting weights."
@@ -50,7 +50,7 @@ def run_network():
         = net.SGD(training_data, 30, 10, 0.01,
                   evaluation_data=validation_data, lmbda = 0.002,
                   monitor_evaluation_accuracy=True)
-    f = open("weight_initialization.json", "w")
+    f = open(filename, "w")
     json.dump({"default_weight_initialization":
                [default_vc, default_va, default_tc, default_ta],
                "large_weight_initialization":
@@ -58,10 +58,12 @@ def run_network():
               f)
     f.close()
 
-def make_plot():
-    """Load the results from weight_initialization.json, and generate the
-    corresponding plot."""
-    f = open("weight_initialization.json", "r")
+def make_plot(filename):
+    """Load the results from the file ``filename``, and generate the
+    corresponding plot.
+
+    """
+    f = open(filename, "r")
     results = json.load(f)
     f.close()
     default_vc, default_va, default_tc, default_ta = results[

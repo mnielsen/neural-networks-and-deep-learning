@@ -39,14 +39,14 @@ class QuadraticCost:
 class CrossEntropyCost:
 
     @staticmethod
-    def fn(cls, a, y):
+    def fn(a, y):
         """Return the cost associated with an output ``a`` and desired output
         ``y``.
         """
         return np.sum(-y*np.log(a)-(1-y)*np.log(1-a))
 
     @staticmethod
-    def delta(cls, z, a, y):
+    def delta(z, a, y):
         """Return the error delta from the output layer.  Note that the
         variable z is not used in the function.  It is included in the
         function's parameters in order to make the parameters consistent
