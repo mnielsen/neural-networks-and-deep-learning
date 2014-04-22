@@ -25,7 +25,7 @@ random.seed(12345678)
 
 
 # Number of epochs to train for 
-NUM_EPOCHS = 150
+NUM_EPOCHS = 300
 
 def main(filename, lmbda=0.0):
     """``filename`` is the name of the file where the results will be
@@ -72,9 +72,9 @@ def make_plots(filename):
 def plot_training_cost(training_cost):
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.plot(np.arange(40, NUM_EPOCHS, 1), training_cost[40:NUM_EPOCHS],
+    ax.plot(np.arange(150, NUM_EPOCHS, 1), training_cost[150:NUM_EPOCHS],
             color='#2A6EA6')
-    ax.set_xlim([40, NUM_EPOCHS])
+    ax.set_xlim([150, NUM_EPOCHS])
     ax.grid(True)
     ax.set_xlabel('Epoch')
     ax.set_title('Cost on the training data')
@@ -83,10 +83,10 @@ def plot_training_cost(training_cost):
 def plot_test_accuracy(test_accuracy):
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.plot(np.arange(40, NUM_EPOCHS, 1), 
-            [accuracy/100.0 for accuracy in test_accuracy[40:NUM_EPOCHS]],
+    ax.plot(np.arange(150, NUM_EPOCHS, 1), 
+            [accuracy/100.0 for accuracy in test_accuracy[150:NUM_EPOCHS]],
             color='#2A6EA6')
-    ax.set_xlim([40, NUM_EPOCHS])
+    ax.set_xlim([150, NUM_EPOCHS])
     ax.grid(True)
     ax.set_xlabel('Epoch')
     ax.set_title('Accuracy (%) on the test data')
@@ -107,7 +107,7 @@ def plot_training_accuracy(training_accuracy):
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.plot(np.arange(0, NUM_EPOCHS, 1), 
-            [accuracy/10.0 for accuracy in training_accuracy],
+            [accuracy/10.0 for accuracy in training_accuracy[0:NUM_EPOCHS]],
             color='#2A6EA6')
     ax.set_xlim([0, NUM_EPOCHS])
     ax.grid(True)
