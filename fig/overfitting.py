@@ -25,7 +25,7 @@ random.seed(12345678)
 
 
 # Number of epochs to train for 
-NUM_EPOCHS = 100
+NUM_EPOCHS = 150
 
 def main(filename, lmbda=0.0):
     """``filename`` is the name of the file where the results will be
@@ -45,6 +45,7 @@ def run_network(filename, lmbda=0.0):
     """
     training_data, validation_data, test_data = mnist_loader.load_data_wrapper()
     net = network2.Network([784, 30, 10], cost=network2.CrossEntropyCost())
+    net.large_weight_initializer()
     test_cost, test_accuracy, training_cost, training_accuracy \
         = net.SGD(training_data[:1000], NUM_EPOCHS, 10, 0.05,
                   evaluation_data=test_data, lmbda = lmbda,
@@ -57,7 +58,8 @@ def run_network(filename, lmbda=0.0):
     f.close()
 
 def make_plots(filename):
-    """Load the results from ``filename``, and generate the corresponding plots."""
+    """Load the results from ``filename``, and generate the corresponding
+    plots."""
     f = open(filename, "r")
     test_cost, test_accuracy, training_cost, training_accuracy \
         = json.load(f)
