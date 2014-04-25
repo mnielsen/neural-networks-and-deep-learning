@@ -6,7 +6,6 @@ Plot graphs to illustrate the problem of overfitting.
 """
 
 # Standard library
-import imp
 import json
 import sys
 
