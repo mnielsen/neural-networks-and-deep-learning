@@ -202,11 +202,16 @@ def plot_rotated_image(image):
             # MNIST digits usually don't go that near the boundary.
             if x2 < -13 or x2 > 13 or y2 < -13 or y2 > 13: continue
             # If we're in bounds, average the nearby entries.
-            rot_image[j, k] \
+            value \
                 = (1-delta_x)*(1-delta_y)*image_value(image, x2, y2)+\
                 (1-delta_x)*delta_y*image_value(image, x2, y2+1)+\
                 delta_x*(1-delta_y)*image_value(image, x2+1, y2)+\
                 delta_x*delta_y*image_value(image, x2+1, y2+1)
+            # Rescale the value by a hand-set fudge factor.  This
+            # seems to be necessary because the averaging doesn't
+            # quite work right.  The fudge-factor should probably be
+            # theta-dependent, but I've set it by hand.  
+            rot_image[j, k] = 1.3*value
     plot_mnist_digit(rot_image)
 
 #### Miscellanea
