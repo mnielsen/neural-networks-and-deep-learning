@@ -42,13 +42,13 @@ def run_network(filename):
     print "Train the network using the default starting weights."
     default_vc, default_va, default_tc, default_ta \
         = net.SGD(training_data, 30, 10, 0.01,
-                  evaluation_data=validation_data, lmbda = 0.002,
+                  evaluation_data=validation_data, lmbda = 0.001,
                   monitor_evaluation_accuracy=True)
     print "Train the network using the large starting weights."
     net.large_weight_initializer()
     large_vc, large_va, large_tc, large_ta \
         = net.SGD(training_data, 30, 10, 0.01,
-                  evaluation_data=validation_data, lmbda = 0.002,
+                  evaluation_data=validation_data, lmbda = 0.001,
                   monitor_evaluation_accuracy=True)
     f = open(filename, "w")
     json.dump({"default_weight_initialization":
