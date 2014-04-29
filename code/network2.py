@@ -32,7 +32,7 @@ class QuadraticCost:
 
     @staticmethod
     def delta(cls, z, a, y):
-        "Return the error delta from the output layer."
+        """Return the error delta from the output layer."""
         return (a-y) * sigmoid_prime_vec(z)
 
 
@@ -112,7 +112,7 @@ class Network():
                         for x, y in zip(self.sizes[:-1], self.sizes[1:])]
 
     def feedforward(self, a):
-        "Return the output of the network if ``a`` is input."
+        """Return the output of the network if ``a`` is input."""
         for b, w in zip(self.biases, self.weights):
             a = sigmoid_vec(np.dot(w, a)+b)
         return a

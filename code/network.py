@@ -36,7 +36,7 @@ class Network():
                         for x, y in zip(sizes[:-1], sizes[1:])]
 
     def feedforward(self, a):
-        "Return the output of the network if ``a`` is input."
+        """Return the output of the network if ``a`` is input."""
         for b, w in zip(self.biases, self.weights):
             a = sigmoid_vec(np.dot(w, a)+b)
         return a
