@@ -1,8 +1,8 @@
 """network2
 ~~~~~~~~~~~
 
-An improved version of network1, implementing the stochastic gradient
-descent learning algorithm for a feedforward neural network.
+An improved version of network.py, implementing the stochastic
+gradient descent learning algorithm for a feedforward neural network.
 Improvements include the addition of the cross-entropy cost function,
 regularization, and better initialization of network weights.  Note
 that I have focused on making the code simple, easily readable, and
@@ -31,7 +31,7 @@ class QuadraticCost:
         return 0.5*np.linalg.norm(a-y)**2
 
     @staticmethod
-    def delta(cls, z, a, y):
+    def delta(z, a, y):
         """Return the error delta from the output layer."""
         return (a-y) * sigmoid_prime_vec(z)
 
@@ -58,7 +58,7 @@ class CrossEntropyCost:
 #### Main Network class
 class Network():
 
-    def __init__(self, sizes, cost=CrossEntropyCost()):
+    def __init__(self, sizes, cost=CrossEntropyCost):
         """The list ``sizes`` contains the number of neurons in the respective
         layers of the network.  For example, if the list was [2, 3, 1]
         then it would be a three-layer network, with the first layer
