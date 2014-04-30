@@ -191,14 +191,11 @@ class Network():
         nabla_w = [np.zeros(w.shape) for w in self.weights]
         for x, y in mini_batch:
             delta_nabla_b, delta_nabla_w = self.backprop(x, y)
-            nabla_b = np.add(nabla_b, delta_nabla_b)
-            nabla_w = np.add(nabla_w, delta_nabla_w)
-        self.weights = np.subtract(
-            np.multiply((1-eta*lmbda), self.weights),
-            np.multiply(eta, nabla_w))
-        self.biases = np.subtract(
-            self.biases,
-            np.multiply(eta, nabla_b))
+            nabla_b = [nb+dnb for nb, dnb in zip(nabla_b, delta_nabla_b)]
+            nabla_w = [nw+dnw for nw, dnw in zip(nabla_w, delta_nabla_w)]
+        self.weights = [(1-eta*lmbda)*w-eta*nw 
+                        for w, nw in zip(self.weights, nabla_w)]
+        self.biases = [b-eta*nb for b, nb in zip(self.biases, nabla_b)]
 
     def backprop(self, x, y):
         """Return a tuple ``(nabla_b, nabla_w)`` representing the
