@@ -1,5 +1,5 @@
-"""network2
-~~~~~~~~~~~
+"""network2.py
+~~~~~~~~~~~~~~
 
 An improved version of network.py, implementing the stochastic
 gradient descent learning algorithm for a feedforward neural network.
@@ -19,7 +19,7 @@ import random
 import numpy as np
 
 
-#### Define the quadratic and cross-entropy cost functions.  
+#### Define the quadratic and cross-entropy cost functions
 
 class QuadraticCost:
 
@@ -27,6 +27,7 @@ class QuadraticCost:
     def fn(a, y):
         """Return the cost associated with an output ``a`` and desired output
         ``y``.
+
         """
         return 0.5*np.linalg.norm(a-y)**2
 
@@ -42,15 +43,17 @@ class CrossEntropyCost:
     def fn(a, y):
         """Return the cost associated with an output ``a`` and desired output
         ``y``.
+
         """
         return np.sum(-y*np.log(a)-(1-y)*np.log(1-a))
 
     @staticmethod
     def delta(z, a, y):
         """Return the error delta from the output layer.  Note that the
-        variable z is not used in the function.  It is included in the
-        function's parameters in order to make the parameters consistent
-        with the delta function for other cost functions.
+        parameter ``z`` is not used by the method.  It is included in
+        the method's parameters in order to make the interface
+        consistent with the delta method for other cost classes.
+
         """
         return (a-y)
 
@@ -75,10 +78,10 @@ class Network():
         self.cost=cost
 
     def default_weight_initializer(self):
-        """Initialize the weights using a Gaussian distribution with mean 0
-        and standard deviation 1 divided by the square root of the
-        number of neurons input to the weight layer.  Initialize the
-        biases using a Gaussian distribution with mean 0 and standard
+        """Initialize each weight using a Gaussian distribution with mean 0
+        and standard deviation 1 over the square root of the number of
+        weights connecting to the same neuron.  Initialize the biases
+        using a Gaussian distribution with mean 0 and standard
         deviation 1.
 
         Note that the first layer is assumed to be an input layer, and
@@ -117,10 +120,13 @@ class Network():
             a = sigmoid_vec(np.dot(w, a)+b)
         return a
 
-    def SGD(self, training_data, epochs, mini_batch_size, eta, lmbda = 0.0, 
-            evaluation_data=None, monitor_evaluation_cost=False,
+    def SGD(self, training_data, epochs, mini_batch_size, eta, 
+            lmbda = 0.0, 
+            evaluation_data=None, 
+            monitor_evaluation_cost=False,
             monitor_evaluation_accuracy=False,
-            monitor_training_cost=False, monitor_training_accuracy=False):
+            monitor_training_cost=False, 
+            monitor_training_accuracy=False):
         """Train the neural network using mini-batch stochastic gradient
         descent.  The ``training_data`` is a list of tuples ``(x, y)``
         representing the training inputs and the desired outputs.  The
@@ -130,11 +136,14 @@ class Network():
         data.  We can monitor the cost and accuracy on either the
         evaluation data or the training data, by setting the
         appropriate flags.  The method returns a tuple containing four
-        lists: the costs on the evaluation data, the accuracies on the
-        evaluation data, the costs on the training data, and the
-        accuracies on the training data.  All values are evaluated at
-        the end of each training epoch.  Note that the lists are empty
-        if the corresponding flag is not set.
+        lists: the (per-epoch) costs on the evaluation data, the
+        accuracies on the evaluation data, the costs on the training
+        data, and the accuracies on the training data.  All values are
+        evaluated at the end of each training epoch.  So, for example,
+        if we train for 30 epochs, then the first element of the tuple
+        will be a 30-element list containing the cost on the
+        evaluation data at the end of each epoch. Note that the lists
+        are empty if the corresponding flag is not set.
 
         """
         if evaluation_data: n_data = len(evaluation_data)
@@ -176,16 +185,20 @@ class Network():
         descent using backpropagation to a single mini batch.  The
         ``mini_batch`` is a list of tuples ``(x, y)``, ``eta`` is the
         learning rate, and ``lmbda`` is the regularization parameter.
+
         """
         nabla_b = [np.zeros(b.shape) for b in self.biases]
         nabla_w = [np.zeros(w.shape) for w in self.weights]
         for x, y in mini_batch:
             delta_nabla_b, delta_nabla_w = self.backprop(x, y)
-            nabla_b = [nb+dnb for nb, dnb in zip(nabla_b, delta_nabla_b)]
-            nabla_w = [nw+dnw for nw, dnw in zip(nabla_w, delta_nabla_w)]
-        self.weights = [(1-eta*lmbda)*w-eta*nw for w, nw in
-                        zip(self.weights, nabla_w)]
-        self.biases = [b-eta*nb for b, nb in zip(self.biases, nabla_b)]
+            nabla_b = np.add(nabla_b, delta_nabla_b)
+            nabla_w = np.add(nabla_w, delta_nabla_w)
+        self.weights = np.subtract(
+            np.multiply((1-eta*lmbda), self.weights),
+            np.multiply(eta, nabla_w))
+        self.biases = np.subtract(
+            self.biases,
+            np.multiply(eta, nabla_b))
 
     def backprop(self, x, y):
         """Return a tuple ``(nabla_b, nabla_w)`` representing the
@@ -229,9 +242,16 @@ class Network():
         should be set to False if the data set is validation or test
         data (the usual case), and to True if the data set is the
         training data. The need for this flag arises due to
-        differences in the way the results ``y`` are represented ---
-        it flags whether we need to convert between the different
-        representations.
+        differences in the way the results ``y`` are represented in
+        the different data sets.  In particular, it flags whether we
+        need to convert between the different representations.  It may
+        seem strange to use different representations for the
+        different data sets.  Why not use the same representation for
+        all three data sets?  It's done for efficiency reasons -- our
+        program usually uses the training data somewhat differently to
+        the other data sets, and using different representations
+        speeds things up.  More details on the representations can be
+        found in mnist_loader.load_data_wrapper.
 
         """
         if convert:
@@ -250,7 +270,7 @@ class Network():
         reversed) convention for the ``accuracy`` method, above.
 
         """
-        cost = 0
+        cost = 0.0
         for x, y in data:
             a = self.feedforward(x)
             if convert: y = vectorized_result(y)
@@ -260,10 +280,11 @@ class Network():
         
 #### Miscellaneous functions
 def vectorized_result(j):
-    """Return a 10-dimensional unit vector with a 1.0 in the jth
-    position and zeroes elsewhere.  This is used to convert a digit
-    (0...9) into a corresponding desired output from the neural
-    network."""
+    """Return a 10-dimensional unit vector with a 1.0 in the j'th position
+    and zeroes elsewhere.  This is used to convert a digit (0...9)
+    into a corresponding desired output from the neural network.
+
+    """
     e = np.zeros((10, 1))
     e[j] = 1.0
     return e
