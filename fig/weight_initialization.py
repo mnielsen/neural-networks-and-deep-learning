@@ -10,7 +10,6 @@ square root of the number of input neurons.
 """
 
 # Standard library
-import imp
 import json
 import sys
 
