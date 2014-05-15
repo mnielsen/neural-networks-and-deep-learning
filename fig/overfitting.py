@@ -7,6 +7,7 @@ Plot graphs to illustrate the problem of overfitting.
 
 # Standard library
 import json
+import random
 import sys
 
 # My library
@@ -17,10 +18,6 @@ import network2
 # Third-party libraries
 import matplotlib.pyplot as plt
 import numpy as np
-
-# Make results more easily reproducible
-import random
-random.seed(12345678)
 
 
 def main(filename, num_epochs,
@@ -37,8 +34,11 @@ def main(filename, num_epochs,
     set the epochs at which to start plotting on the x axis.
     """
     run_network(filename, num_epochs, training_set_size, lmbda)
-    make_plots(filename, num_epochs, training_cost_xmin,
-               test_accuracy_xmin, training_accuracy_xmin,
+    make_plots(filename, num_epochs, 
+               test_accuracy_xmin,
+               training_cost_xmin,
+               test_accuracy_xmin, 
+               training_accuracy_xmin,
                training_set_size)
                        
 def run_network(filename, num_epochs, training_set_size=1000, lmbda=0.0):
@@ -49,11 +49,14 @@ def run_network(filename, num_epochs, training_set_size=1000, lmbda=0.0):
     ``run_network`` each time we want to make a plot (it's slow).
 
     """
+    # Make results more easily reproducible
+    random.seed(12345678)
+    np.random.seed(12345678)
     training_data, validation_data, test_data = mnist_loader.load_data_wrapper()
     net = network2.Network([784, 30, 10], cost=network2.CrossEntropyCost())
     net.large_weight_initializer()
     test_cost, test_accuracy, training_cost, training_accuracy \
-        = net.SGD(training_data[:training_set_size], num_epochs, 10, 0.05,
+        = net.SGD(training_data[:training_set_size], num_epochs, 10, 0.5,
                   evaluation_data=test_data, lmbda = lmbda,
                   monitor_evaluation_cost=True, 
                   monitor_evaluation_accuracy=True, 

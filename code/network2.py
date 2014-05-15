@@ -237,20 +237,23 @@ class Network():
         """Return the number of inputs in ``data`` for which the neural
         network outputs the correct result. The neural network's
         output is assumed to be the index of whichever neuron in the
-        final layer has the highest activation.  The flag ``convert``
-        should be set to False if the data set is validation or test
-        data (the usual case), and to True if the data set is the
-        training data. The need for this flag arises due to
-        differences in the way the results ``y`` are represented in
-        the different data sets.  In particular, it flags whether we
-        need to convert between the different representations.  It may
-        seem strange to use different representations for the
-        different data sets.  Why not use the same representation for
-        all three data sets?  It's done for efficiency reasons -- our
-        program usually uses the training data somewhat differently to
-        the other data sets, and using different representations
-        speeds things up.  More details on the representations can be
-        found in mnist_loader.load_data_wrapper.
+        final layer has the highest activation.  
+
+        The flag ``convert`` should be set to False if the data set is
+        validation or test data (the usual case), and to True if the
+        data set is the training data. The need for this flag arises
+        due to differences in the way the results ``y`` are
+        represented in the different data sets.  In particular, it
+        flags whether we need to convert between the different
+        representations.  It may seem strange to use different
+        representations for the different data sets.  Why not use the
+        same representation for all three data sets?  It's done for
+        efficiency reasons -- the program usually evaluates the cost
+        on the training data and the accuracy on other data sets.
+        These are different types of computations, and using different
+        representations speeds things up.  More details on the
+        representations can be found in
+        mnist_loader.load_data_wrapper.
 
         """
         if convert:
@@ -267,14 +270,14 @@ class Network():
         training data (the usual case), and to True if the data set is
         the validation or test data.  See comments on the similar (but
         reversed) convention for the ``accuracy`` method, above.
-
         """
         cost = 0.0
         for x, y in data:
             a = self.feedforward(x)
             if convert: y = vectorized_result(y)
-            cost += self.cost.fn(a, y)
-        cost += 0.5*lmbda*sum(np.linalg.norm(w)**2 for w in self.weights)
+            cost += self.cost.fn(a, y)/len(data)
+        cost += 0.5*(lmbda/len(data))*sum(
+            np.linalg.norm(w)**2 for w in self.weights)
         return cost
 
     def save(self, filename):
