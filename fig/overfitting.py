@@ -173,7 +173,7 @@ if __name__ == "__main__":
     training_set_size = int(raw_input(
         "Training set size (suggest 1000): "))
     lmbda = float(raw_input(
-        "Enter the regularization parameter, lambda (suggest: 0.001): "))
+        "Enter the regularization parameter, lambda (suggest: 5.0): "))
     main(filename, num_epochs, training_cost_xmin, 
          test_accuracy_xmin, test_cost_xmin, training_accuracy_xmin,
          training_set_size, lmbda)

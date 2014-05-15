@@ -8,6 +8,7 @@ training sets are used.
 
 # Standard library
 import json
+import random
 import sys
 
 # My library
@@ -20,10 +21,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 from sklearn import svm
 
-# Make results more easily reproducible
-import random
-random.seed(12345678)
-
 # The sizes to use for the different training sets
 SIZES = [100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000] 
 
@@ -33,6 +30,9 @@ def main():
     make_plots()
                        
 def run_networks():
+    # Make results more easily reproducible
+    random.seed(12345678)
+    np.random.seed(12345678)
     training_data, validation_data, test_data = mnist_loader.load_data_wrapper()
     net = network2.Network([784, 30, 10], cost=network2.CrossEntropyCost())
     accuracies = []
@@ -40,7 +40,7 @@ def run_networks():
         print "\n\nTraining network with data set size %s" % size
         net.large_weight_initializer()
         num_epochs = 1500000 / size 
-        net.SGD(training_data[:size], num_epochs, 10, 0.05, lmbda = 0.001)
+        net.SGD(training_data[:size], num_epochs, 10, 0.5, lmbda = 5.0)
         accuracy = net.accuracy(validation_data) / 100.0
         print "Accuracy was %s percent" % accuracy
         accuracies.append(accuracy)
