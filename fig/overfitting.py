@@ -21,8 +21,8 @@ import numpy as np
 
 
 def main(filename, num_epochs,
-         training_cost_xmin=150, 
-         test_accuracy_xmin=150, 
+         training_cost_xmin=200, 
+         test_accuracy_xmin=200, 
          test_cost_xmin=0, 
          training_accuracy_xmin=0,
          training_set_size=1000, 
@@ -67,8 +67,8 @@ def run_network(filename, num_epochs, training_set_size=1000, lmbda=0.0):
     f.close()
 
 def make_plots(filename, num_epochs, 
-               training_cost_xmin=150, 
-               test_accuracy_xmin=150, 
+               training_cost_xmin=200, 
+               test_accuracy_xmin=200, 
                test_cost_xmin=0, 
                training_accuracy_xmin=0,
                training_set_size=1000):
@@ -163,9 +163,9 @@ if __name__ == "__main__":
     num_epochs = int(raw_input(
         "Enter the number of epochs to run for: "))
     training_cost_xmin = int(raw_input(
-        "training_cost_xmin (suggest 150): "))
+        "training_cost_xmin (suggest 200): "))
     test_accuracy_xmin = int(raw_input(
-        "test_accuracy_xmin (suggest 150): "))
+        "test_accuracy_xmin (suggest 200): "))
     test_cost_xmin = int(raw_input(
         "test_cost_xmin (suggest 0): "))
     training_accuracy_xmin = int(raw_input(
