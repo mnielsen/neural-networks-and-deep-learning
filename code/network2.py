@@ -157,7 +157,8 @@ class Network():
                 training_data[k:k+mini_batch_size]
                 for k in xrange(0, n, mini_batch_size)]
             for mini_batch in mini_batches:
-                self.update_mini_batch(mini_batch, eta, lmbda)
+                self.update_mini_batch(
+                    mini_batch, eta, lmbda, len(training_data))
             print "Epoch %s training complete" % j
             if monitor_training_cost:
                 cost = self.total_cost(training_data, lmbda)
@@ -181,11 +182,12 @@ class Network():
         return evaluation_cost, evaluation_accuracy, \
             training_cost, training_accuracy
 
-    def update_mini_batch(self, mini_batch, eta, lmbda):
+    def update_mini_batch(self, mini_batch, eta, lmbda, n):
         """Update the network's weights and biases by applying gradient
         descent using backpropagation to a single mini batch.  The
         ``mini_batch`` is a list of tuples ``(x, y)``, ``eta`` is the
-        learning rate, and ``lmbda`` is the regularization parameter.
+        learning rate, ``lmbda`` is the regularization parameter, and
+        ``n`` is the total size of the training data set.
 
         """
         nabla_b = [np.zeros(b.shape) for b in self.biases]
@@ -194,7 +196,7 @@ class Network():
             delta_nabla_b, delta_nabla_w = self.backprop(x, y)
             nabla_b = [nb+dnb for nb, dnb in zip(nabla_b, delta_nabla_b)]
             nabla_w = [nw+dnw for nw, dnw in zip(nabla_w, delta_nabla_w)]
-        self.weights = [(1-eta*lmbda)*w-(eta/len(mini_batch))*nw 
+        self.weights = [(1-eta*(lmbda/n))*w-(eta/len(mini_batch))*nw 
                         for w, nw in zip(self.weights, nabla_w)]
         self.biases = [b-(eta/len(mini_batch))*nb 
                        for b, nb in zip(self.biases, nabla_b)]
