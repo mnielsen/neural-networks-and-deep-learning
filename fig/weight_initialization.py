@@ -11,6 +11,7 @@ square root of the number of input neurons.
 
 # Standard library
 import json
+import random
 import sys
 
 # My library
@@ -22,32 +23,31 @@ import network2
 import matplotlib.pyplot as plt
 import numpy as np
 
-# Make results more easily reproducible
-import random
-random.seed(12345678)
-
-def main(filename):
-    run_network(filename)
+def main(filename, n, eta):
+    run_network(filename, n, eta)
     make_plot(filename)
                        
-def run_network(filename):
+def run_network(filename, n, eta):
     """Train the network using both the default and the large starting
     weights.  Store the results in the file with name ``filename``,
     where they can later be used by ``make_plots``.
 
     """
+    # Make results more easily reproducible
+    random.seed(12345678)
+    np.random.seed(12345678)
     training_data, validation_data, test_data = mnist_loader.load_data_wrapper()
-    net = network2.Network([784, 30, 10], cost=network2.CrossEntropyCost())
+    net = network2.Network([784, n, 10], cost=network2.CrossEntropyCost)
     print "Train the network using the default starting weights."
     default_vc, default_va, default_tc, default_ta \
-        = net.SGD(training_data, 30, 10, 0.01,
-                  evaluation_data=validation_data, lmbda = 0.001,
+        = net.SGD(training_data, 30, 10, eta, lmbda=5.0,
+                  evaluation_data=validation_data, 
                   monitor_evaluation_accuracy=True)
     print "Train the network using the large starting weights."
     net.large_weight_initializer()
     large_vc, large_va, large_tc, large_ta \
-        = net.SGD(training_data, 30, 10, 0.01,
-                  evaluation_data=validation_data, lmbda = 0.001,
+        = net.SGD(training_data, 30, 10, eta, lmbda=5.0,
+                  evaluation_data=validation_data, 
                   monitor_evaluation_accuracy=True)
     f = open(filename, "w")
     json.dump({"default_weight_initialization":
