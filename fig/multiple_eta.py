@@ -9,6 +9,7 @@ three different values for eta.
 
 # Standard library
 import json
+import random
 import sys
 
 # My library
@@ -20,13 +21,8 @@ import network2
 import matplotlib.pyplot as plt
 import numpy as np
 
-# Make results more easily reproducible
-np.random.seed(12345678)
-import random
-random.seed(12345678)
-
 # Constants
-LEARNING_RATES = [0.0025, 0.025, 0.25]
+LEARNING_RATES = [0.025, 0.25, 2.5]
 COLORS = ['#2A6EA6', '#FFCD33', '#FF7033']
 NUM_EPOCHS = 30
 
@@ -40,15 +36,18 @@ def run_networks():
     they can later be used by ``make_plot``.
 
     """
+    # Make results more easily reproducible
+    random.seed(12345678)
+    np.random.seed(12345678)
     training_data, validation_data, test_data = mnist_loader.load_data_wrapper()
     results = []
     for eta in LEARNING_RATES:
         print "\nTrain a network using eta = "+str(eta)
         net = network2.Network([784, 30, 10])
         results.append(
-            net.SGD(training_data, NUM_EPOCHS, 10, eta,
-                    evaluation_data=validation_data, lmbda = 0.001,
-                  monitor_training_cost=True))
+            net.SGD(training_data, NUM_EPOCHS, 10, eta, lmbda=5.0,
+                    evaluation_data=validation_data, 
+                    monitor_training_cost=True))
     f = open("multiple_eta.json", "w")
     json.dump(results, f)
     f.close()
