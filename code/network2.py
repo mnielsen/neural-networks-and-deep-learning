@@ -43,10 +43,12 @@ class CrossEntropyCost:
     @staticmethod
     def fn(a, y):
         """Return the cost associated with an output ``a`` and desired output
-        ``y``.
+        ``y``.  Note that the np.nan_to_num ensures that if the output
+        from the network is exactly right, then 0.0 will be returned,
+        rather than nan.
 
         """
-        return np.sum(-y*np.log(a)-(1-y)*np.log(1-a))
+        return np.nan_to_num(np.sum(-y*np.log(a)-(1-y)*np.log(1-a)))
 
     @staticmethod
     def delta(z, a, y):
