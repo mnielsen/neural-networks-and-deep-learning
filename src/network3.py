@@ -19,6 +19,11 @@ particular, the API is similar to network2.py.  Note that I have
 focused on making the code simple, easily readable, and easily
 modifiable.  It is not optimized, and omits many desirable features.
 
+This program is loosely based on the Theano documentation on
+convolutional neural nets (notably,
+http://deeplearning.net/tutorial/lenet.html ), as well as some ideas
+of Chris Olah (http://colah.github.io ).
+
 """
 
 #### Libraries
