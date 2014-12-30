@@ -3,3 +3,5 @@
 *.pkl
 *.pyc
 .DS_Store
+loc.py
+src/ec2
