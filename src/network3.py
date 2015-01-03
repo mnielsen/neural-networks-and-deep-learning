@@ -57,7 +57,7 @@ if GPU:
 
 def example(mini_batch_size=10):
     print("Loading the MNIST data")
-    training_data, validation_data, test_data = load_data_shared("../data/mnist.pkl.gz")
+    training_data, validation_data, test_data = load_data_shared()
     print("Building the network")
     net = create_net(10)
     print("Training the network")
@@ -171,7 +171,7 @@ class Network():
                 iteration = num_training_batches*epoch+minibatch_index
                 if iteration % 1000 == 0: 
                     print("Training mini-batch number {0}".format(iteration))
-                cost_ij = train_mini_batch(minibatch_index)
+                cost_ij = train_mb(minibatch_index)
                 if (iteration+1) % num_training_batches == 0:
                     validation_accuracy = np.mean(
                         [validate_mb_accuracy(j) for j in xrange(num_validation_batches)])
