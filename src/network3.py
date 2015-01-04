@@ -74,10 +74,10 @@ def create_net(mini_batch_size=10, activation_fn=tanh):
          #ConvPoolLayer(image_shape=(mini_batch_size, 20, 12, 12), filter_shape=(40, 20, 5, 5), poolsize=(2, 2), activation_fn=activation_fn),
          #FullyConnectedLayer(n_in=40*4*4, n_out=100, mini_batch_size=mini_batch_size, activation_fn=activation_fn),
          #FullyConnectedLayer(n_in=784, n_out=100, mini_batch_size=mini_batch_size, activation_fn=activation_fn),
-         #FullyConnectedLayer(n_in=20*12*12, n_out=100, mini_batch_size=mini_batch_size),
+         FullyConnectedLayer(n_in=20*12*12, n_out=100),
          #FullyConnectedLayer(n_in=100, n_out=100, mini_batch_size=mini_batch_size, activation_fn=activation_fn),
-         #SoftmaxLayer(n_in=100, n_out=10, mini_batch_size=mini_batch_size)], mini_batch_size)
-         SoftmaxLayer(n_in=20*12*12, n_out=10)], mini_batch_size)
+         SoftmaxLayer(n_in=100, n_out=10)], mini_batch_size)
+         #SoftmaxLayer(n_in=20*12*12, n_out=10)], mini_batch_size)
 
 #### Load the MNIST data
 def load_data_shared(filename="../data/mnist.pkl.gz"):
@@ -252,7 +252,7 @@ class ConvPoolLayer():
 
 class FullyConnectedLayer():
 
-    def __init__(self, n_in, n_out, mini_batch_size=10, activation_fn=sigmoid):
+    def __init__(self, n_in, n_out, activation_fn=sigmoid):
         self.n_in = n_in
         self.n_out = n_out
         self.activation_fn = activation_fn
