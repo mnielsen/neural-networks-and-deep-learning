@@ -111,10 +111,10 @@ class Network():
         self.x = T.matrix("x")  
         self.y = T.ivector("y")
         init_layer = self.layers[0]
-        init_layer.set_inpt(self.x, mini_batch_size)
+        init_layer.set_inpt(self.x, self.mini_batch_size)
         for j in xrange(1, len(self.layers)):
             prev_layer, layer  = self.layers[j-1], self.layers[j]
-            layer.set_inpt(prev_layer.output, mini_batch_size)
+            layer.set_inpt(prev_layer.output, self.mini_batch_size)
         self.output = self.layers[-1].output
 
     def SGD(self, training_data, epochs, mini_batch_size, eta, 
@@ -261,8 +261,7 @@ class FullyConnectedLayer():
         # Initialize weights and biases
         self.w = theano.shared(
             np.asarray(
-                np.random.normal(
-                    loc=0.0, scale=np.sqrt(1.0/n_out), size=(n_in, n_out)),
+                np.random.normal(loc=0.0, scale=np.sqrt(1.0/n_out), size=(n_in, n_out)),
                 dtype=theano.config.floatX),
             name='w', borrow=True)
         self.b = theano.shared(
@@ -272,9 +271,8 @@ class FullyConnectedLayer():
         self.params = [self.w, self.b]
 
     def set_inpt(self, inpt, mini_batch_size):
-        self.mini_batch_size = mini_batch_size
-        self.inpt = inpt.reshape((self.mini_batch_size, self.n_in))
-        self.output = self.activation_fn(T.dot(inpt, self.w)+self.b)
+        self.inpt = inpt.reshape((mini_batch_size, self.n_in))
+        self.output = self.activation_fn(T.dot(self.inpt, self.w) + self.b)
 
 class SoftmaxLayer():
 
@@ -293,9 +291,8 @@ class SoftmaxLayer():
         self.params = [self.w, self.b]
 
     def set_inpt(self, inpt, mini_batch_size):
-        self.mini_batch_size = mini_batch_size
-        self.inpt = inpt.reshape((self.mini_batch_size, self.n_in))
-        self.output = softmax(T.dot(self.inpt, self.w)+self.b)
+        self.inpt = inpt.reshape((mini_batch_size, self.n_in))
+        self.output = softmax(T.dot(self.inpt, self.w) + self.b)
         self.y_out = T.argmax(self.output, axis=1)
 
     def accuracy(self, y):
@@ -307,3 +304,4 @@ class SoftmaxLayer():
 def size(data):
     "Return the size of the dataset `data`."
     return data[0].get_value(borrow=True).shape[0]
+
