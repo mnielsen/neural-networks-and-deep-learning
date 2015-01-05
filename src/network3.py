@@ -55,30 +55,6 @@ if GPU:
     except: pass # it's already set
     theano.config.floatX = 'float32'
 
-def example(mini_batch_size=10):
-    print("Loading the MNIST data")
-    training_data, validation_data, test_data = load_data_shared()
-    print("Building the network")
-    net = create_net(10)
-    print("Training the network")
-    try:
-        net.SGD(training_data, 200, mini_batch_size, 0.1, 
-                validation_data, test_data, lmbda=1.0)
-    except KeyboardInterrupt:
-        pass
-    return net
-
-def create_net(mini_batch_size=10, activation_fn=tanh):
-    return Network(
-        [ConvPoolLayer(image_shape=(mini_batch_size, 1, 28, 28), filter_shape=(20, 1, 5, 5), poolsize=(2, 2), activation_fn=activation_fn),
-         #ConvPoolLayer(image_shape=(mini_batch_size, 20, 12, 12), filter_shape=(40, 20, 5, 5), poolsize=(2, 2), activation_fn=activation_fn),
-         #FullyConnectedLayer(n_in=40*4*4, n_out=100, mini_batch_size=mini_batch_size, activation_fn=activation_fn),
-         #FullyConnectedLayer(n_in=784, n_out=100, mini_batch_size=mini_batch_size, activation_fn=activation_fn),
-         FullyConnectedLayer(n_in=20*12*12, n_out=100),
-         #FullyConnectedLayer(n_in=100, n_out=100, mini_batch_size=mini_batch_size, activation_fn=activation_fn),
-         SoftmaxLayer(n_in=100, n_out=10)], mini_batch_size)
-         #SoftmaxLayer(n_in=20*12*12, n_out=10)], mini_batch_size)
-
 #### Load the MNIST data
 def load_data_shared(filename="../data/mnist.pkl.gz"):
     f = gzip.open(filename, 'rb')

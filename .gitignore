@@ -1,5 +1,6 @@
 *~
 *.org
+*.pem
 *.pkl
 *.pyc
 .DS_Store
