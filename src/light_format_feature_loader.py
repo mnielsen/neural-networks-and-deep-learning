@@ -1,8 +1,8 @@
 """
-radar_loader
+light_format_feature_loader
 ~~~~~~~~~~~~
 
-A library to load the radar data.  For details of the data
+A library to load light format feature data.  For details of the data
 structures that are returned, see the doc strings for ``load_data``
 and ``load_data_wrapper``.  In practice, ``load_data_wrapper`` is the
 function usually called by our neural network code.
@@ -10,14 +10,28 @@ function usually called by our neural network code.
 
 #### Libraries
 # Standard library
-import cPickle
-import gzip
 
 # Third-party libraries
 import numpy as np
 
+
+def parse_line(line):
+    tokens = str(line).strip().split()
+    #print tokens
+    label = tokens[0]
+    feature_vector = []
+    dimension = len(tokens) - 1
+    #print "dimension: " + str(dimension)
+    #print "label: " + str(label)
+    for i in range(1, dimension+1):
+        # print tokens[i]
+        index_value_pair = str(tokens[i]).split(":")
+        feature_vector.append(float(index_value_pair[1]))
+    # print "feature_vector: " + str(feature_vector)
+    return (label, feature_vector, dimension)
+
 def load_data():
-    """Return the radar data as a tuple containing the training data,
+    """Return light format feature data as a tuple containing the training data,
     the validation data, and the test data.
 
     The ``training_data`` is returned as a tuple with two entries.
@@ -26,11 +40,10 @@ def load_data():
     Each feature vector/entry is, in turn, also a numpy ndarray.
 
     The second entry in the ``training_data`` tuple is a numpy ndarray.
-    The entries/labels are just the amount of rainfall for the corresponding radar 
+    Each of the entries are labels for the corresponding
     feature vectors contained in the first entry of the tuple.
 
-    The ``validation_data`` and ``test_data`` are similar, except
-    each contains only 10,000 images.
+    The ``validation_data`` and ``test_data`` are similar.
 
     This is a nice data format, but for use in neural networks it's
     helpful to modify the format of the ``training_data`` a little.
@@ -38,11 +51,24 @@ def load_data():
     below.
     """
     
+    training_data_dir = "/home/awips/sample_data/svmdata.oneHourPrecipAsLabel/svm_case1_merged"
+    training_data_file = "svm_traindata.txt.1a.Z_0.5_0.5"
+    print training_data_dir + "/" + training_data_file
+    f = open(training_data_dir + "/" + training_data_file, "r")
+    lines = f.readlines()
+    feature_collection = []
+    for line in lines:
+        (_label, _feature_vector, _dimension) = parse_line(line)
+        feature_collection.append(_feature_vector)
+        
+    for feature_vector in feature_collection:
+        print "feature_vector: " + str(feature_vector)
+    
     # Not implemented yet
-    f = gzip.open('../data/mnist.pkl.gz', 'rb')
-    training_data, validation_data, test_data = cPickle.load(f)
-    f.close()
-    return (training_data, validation_data, test_data)
+    #f = gzip.open('../data/mnist.pkl.gz', 'rb')
+    #training_data, validation_data, test_data = cPickle.load(f)
+    #f.close()
+    #return (training_data, validation_data, test_data)
 
 def load_data_wrapper():
     """Return a tuple containing ``(training_data, validation_data,
@@ -52,10 +78,10 @@ def load_data_wrapper():
     In particular, ``training_data`` is a list of 2-tuples ``(x, y)``.  
     ``x`` is a xxx-dimensional numpy.ndarray containing the input feature vector. 
     ``y`` is a xx-dimensional numpy.ndarray representing the unit vector corresponding
-    to the rainfall accumulation for ``x``.
+    to the label for ``x``.
 
-    ``validation_data`` and ``test_data`` are lists containing 10,000
-    2-tuples ``(x, y)``.  In each case, ``x`` is a 784-dimensional
+    ``validation_data`` and ``test_data`` are lists containing xxx
+    2-tuples ``(x, y)``.  In each case, ``x`` is a xx-dimensional
     numpy.ndarry containing the input image, and ``y`` is the
     corresponding classification, i.e., the digit values (integers)
     corresponding to ``x``.
@@ -91,8 +117,8 @@ def load_data_wrapper():
     print ""
     
     # tr_d[1] is a ndarray containing the label entries corresponding to the feature vectors, 
-    # each entry is just the rainfall amount, ie. label
-    print "=== tr_d[1] is info about corresponding labels/rainfall/results ==="
+    # each entry is just the scalar  label/result value
+    print "=== tr_d[1] is info about corresponding labels/results ==="
     print "tr_d[1]: "
     print tr_d[1]
     print "tr_d[1][0] (rainfall value for the 1st feature vector): " + str(tr_d[1][0]);
@@ -133,7 +159,7 @@ def load_data_wrapper():
     for data in training_data:
         print "single_training_data: " + str(data)
         # print data
-        break # Print only the first input feature vector/image followed by its corresponding labels/digits
+        break # Print only the first input feature vector followed by its corresponding labels/digits
 
     validation_inputs = [np.reshape(x, (784, 1)) for x in va_d[0]]
     validation_data = zip(validation_inputs, va_d[1])
@@ -151,6 +177,8 @@ def vectorized_result(j):
     return e
 
 if __name__ == '__main__':
-    import mnist_loader_with_print_msg
-    training_data, validation_data, test_data = mnist_loader_with_print_msg.load_data_wrapper()
+    import light_format_feature_loader
+    # training_data, validation_data, test_data = light_format_feature_loader.load_data_wrapper()
+    # tr_d, va_d, te_d = light_format_feature_loader.load_data()
+    light_format_feature_loader.load_data()
 

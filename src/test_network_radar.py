@@ -1,7 +1,7 @@
-import radar_loader_with_print_msg
+import light_format_feature_loader
 import network
 
-training_data, validation_data, test_data = radar_loader_with_print_msg.load_data_wrapper()
+training_data, validation_data, test_data = light_format_feature_loader.load_data_wrapper()
 
 """ 
 Build a three-layer neural network given the number of neurons for each layer

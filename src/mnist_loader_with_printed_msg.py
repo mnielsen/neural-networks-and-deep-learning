@@ -154,6 +154,6 @@ def vectorized_result(j):
     return e
 
 if __name__ == '__main__':
-    import mnist_loader_with_print_msg
-    training_data, validation_data, test_data = mnist_loader_with_print_msg.load_data_wrapper()
+    import mnist_loader_with_printed_msg
+    training_data, validation_data, test_data = mnist_loader_with_printed_msg.load_data_wrapper()
 
