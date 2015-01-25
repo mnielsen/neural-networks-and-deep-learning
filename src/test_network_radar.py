@@ -1,14 +1,17 @@
 import light_format_feature_loader
 import network
 
-training_data, validation_data, test_data = light_format_feature_loader.load_data_wrapper()
+rainfall_min_value = 0
+rainfall_max_value = 10
+n_rainfall_indexes = 100 # for use in vectorized form of rainfall label
+training_data, validation_data, test_data, dimension = light_format_feature_loader.load_data_wrapper(rainfall_min_value, rainfall_max_value, n_rainfall_indexes)
 
 """ 
 Build a three-layer neural network given the number of neurons for each layer
  Parameters:
  [number of neurons for input layer], [number of neurons for hidden layer], [number of neurons for output layer]
 """
-net = network.Network([784, 30, 10])
+net = network.Network([dimension, 30, 10])
 
 """
 Perform stochastic gradient descent algorithm given necessary hyper-parameters

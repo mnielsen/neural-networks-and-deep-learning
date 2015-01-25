@@ -2,8 +2,8 @@
 light_format_feature_loader
 ~~~~~~~~~~~~
 
-A library to load light format feature data.  For details of the data
-structures that are returned, see the doc strings for ``load_data``
+A library to load light format feature data specified by LIBSVM.  
+For details of the data structures that are returned, see the doc strings for ``load_data``
 and ``load_data_wrapper``.  In practice, ``load_data_wrapper`` is the
 function usually called by our neural network code.
 """
@@ -44,6 +44,7 @@ def load_data():
     feature vectors contained in the first entry of the tuple.
 
     The ``validation_data`` and ``test_data`` are similar.
+    The ``dimension`` is the dimension of feature vectors.
 
     This is a nice data format, but for use in neural networks it's
     helpful to modify the format of the ``training_data`` a little.
@@ -56,13 +57,37 @@ def load_data():
     print training_data_dir + "/" + training_data_file
     f = open(training_data_dir + "/" + training_data_file, "r")
     lines = f.readlines()
+    number_of_feature_vectors = len(lines)
     feature_collection = []
+    feature_label_collection = []
+    
+    (_arg0, _arg1, dimension) = parse_line(lines[0])
     for line in lines:
         (_label, _feature_vector, _dimension) = parse_line(line)
+        if _dimension != dimension:
+            print "[Error] Inconsistent dimension found in the training data"
+            return 
         feature_collection.append(_feature_vector)
-        
-    for feature_vector in feature_collection:
-        print "feature_vector: " + str(feature_vector)
+        feature_label_collection.append(_label)
+    
+    if len(feature_label_collection) > 0:
+        feature_label_collection[0]
+    
+    features_ndarray = np.array(feature_collection)
+    labels_ndarray = np.array(feature_label_collection)
+    training_data_list = [features_ndarray, labels_ndarray]
+    training_data = tuple(training_data_list)
+    validation_data = training_data
+    test_data = training_data
+    
+    # print training_data
+
+    return (training_data, validation_data, test_data, dimension)
+
+    #for feature_vector in features_ndarray:
+    #    print "feature_vector: " + str(feature_vector)
+    #array_type = type(features_ndarray)
+    #print "array_type: " + str(array_type)
     
     # Not implemented yet
     #f = gzip.open('../data/mnist.pkl.gz', 'rb')
@@ -70,7 +95,7 @@ def load_data():
     #f.close()
     #return (training_data, validation_data, test_data)
 
-def load_data_wrapper():
+def load_data_wrapper(label_min_value = 0, label_max_value = 10, n_indexes = 100):
     """Return a tuple containing ``(training_data, validation_data,
     test_data)``. Based on ``load_data``, but the format is more
     convenient for use in our implementation of neural networks.
@@ -90,7 +115,11 @@ def load_data_wrapper():
     the training data and the validation / test data.  These formats
     turn out to be the most convenient for use in our neural network
     code."""
-    tr_d, va_d, te_d = load_data()
+    tr_d, va_d, te_d, dimension = load_data()
+    
+    print "label_min_value: " + str(label_min_value)
+    print "label_max_value: " + str(label_max_value)
+    print "n_indexes: " + str(n_indexes)
     
     # While tr_d[0] is a ndarray containing the feature vectors/entries, each entry is also a ndarray.
     # it looks like a list of vectors when printing out, 
@@ -121,8 +150,8 @@ def load_data_wrapper():
     print "=== tr_d[1] is info about corresponding labels/results ==="
     print "tr_d[1]: "
     print tr_d[1]
-    print "tr_d[1][0] (rainfall value for the 1st feature vector): " + str(tr_d[1][0]);
-    print "tr_d[1][1] (rainfall value for the 2nd feature vector): " + str(tr_d[1][1]);
+    print "tr_d[1][0] (label value for the 1st feature vector): " + str(tr_d[1][0]);
+    print "tr_d[1][1] (label value for the 2nd feature vector): " + str(tr_d[1][1]);
     print "....."
     count_labels = 0
     for i in tr_d[1]:
@@ -140,7 +169,7 @@ def load_data_wrapper():
     print "# Part II: Training data after being transformed for neural network as inputs #"
     print "###############################################################################"
     print "=== Transformed training_inputs ==="
-    training_inputs = [np.reshape(x, (784, 1)) for x in tr_d[0]]
+    training_inputs = [np.reshape(x, (dimension, 1)) for x in tr_d[0]]
     print "training_inputs.__len__():" + str(training_inputs.__len__())
     # print "training_inputs: "
     for input in training_inputs:
@@ -148,37 +177,51 @@ def load_data_wrapper():
         # print input
         break # Print only the first input feature vector/image
     
-    training_results = [vectorized_result(y) for y in tr_d[1]]
+    # training_results = [vectorized_result(convert_value_to_index(label_value, label_min_value, label_max_value, n_indexes), n_indexes) for label_value in tr_d[1]]
+    training_results = []
+    for label_value in tr_d[1]:
+        label_index = convert_value_to_index(float(label_value), label_min_value, label_max_value, n_indexes)
+        # print "label_index: " + str(label_index)
+        training_results.append(vectorized_result(label_index, n_indexes))
+    
     for result in training_results:
-        print "single_vectorized_result.size (label/digit): " + str(result.size)
-        print result
+        print "single_vectorized_result.size (label): " + str(result.size)
+        # print result
         break # Print only the first result(Or label, digit)
     
-    print "=== training_data (zip of transformed training_inputs and corresponding labels) ==="
+    # print "=== training_data (zip of transformed training_inputs and corresponding labels) ==="
     training_data = zip(training_inputs, training_results)
     for data in training_data:
-        print "single_training_data: " + str(data)
-        # print data
+        # print "single_training_data: " + str(data)
         break # Print only the first input feature vector followed by its corresponding labels/digits
 
-    validation_inputs = [np.reshape(x, (784, 1)) for x in va_d[0]]
+    validation_inputs = [np.reshape(x, (dimension, 1)) for x in va_d[0]]
     validation_data = zip(validation_inputs, va_d[1])
-    test_inputs = [np.reshape(x, (784, 1)) for x in te_d[0]]
+    test_inputs = [np.reshape(x, (dimension, 1)) for x in te_d[0]]
     test_data = zip(test_inputs, te_d[1])
-    return (training_data, validation_data, test_data)
+    return (training_data, validation_data, test_data, dimension)
 
-def vectorized_result(j):
-    """Return a 10-dimensional unit vector with a 1.0 in the jth
-    position and zeroes elsewhere.  This is used to convert a digit
+def convert_value_to_index(value, label_min_value, label_max_value, n_indexes):
+    # min_index = 0
+    # max_index = n_indexes - 1
+    index = int(round(n_indexes * value / (label_max_value - label_min_value)))
+    if index >= n_indexes: index = n_indexes - 1
+    return index
+
+def vectorized_result(j, n_indexes):
+    """Return a n_indexes-dimensional unit vector with a 1.0 in the jth
+    position and zeroes elsewhere.  This is used to convert a value
     (0...9) into a corresponding desired output from the neural
     network."""
-    e = np.zeros((10, 1))
+    e = np.zeros((n_indexes, 1))
     e[j] = 1.0
     return e
 
 if __name__ == '__main__':
     import light_format_feature_loader
-    # training_data, validation_data, test_data = light_format_feature_loader.load_data_wrapper()
-    # tr_d, va_d, te_d = light_format_feature_loader.load_data()
-    light_format_feature_loader.load_data()
+    training_data, validation_data, test_data, dimension = light_format_feature_loader.load_data_wrapper()
+    
+    # tmp test
+    # tr_d, va_d, te_d, dimension = light_format_feature_loader.load_data()
+    #light_format_feature_loader.load_data()
 
