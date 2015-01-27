@@ -196,9 +196,16 @@ def load_data_wrapper(label_min_value = 0, label_max_value = 10, n_indexes = 100
         break # Print only the first input feature vector followed by its corresponding labels/digits
 
     validation_inputs = [np.reshape(x, (dimension, 1)) for x in va_d[0]]
-    validation_data = zip(validation_inputs, va_d[1])
+    validation_results = []
+    for label_value in va_d[1]:
+        validation_results.append(float(label_value))
+    validation_data = zip(validation_inputs, validation_results)
+    
     test_inputs = [np.reshape(x, (dimension, 1)) for x in te_d[0]]
-    test_data = zip(test_inputs, te_d[1])
+    test_results = []
+    for label_value in te_d[1]:
+        test_results.append(float(label_value))  
+    test_data = zip(test_inputs, test_results)
     return (training_data, validation_data, test_data, dimension)
 
 def convert_value_to_index(value, label_min_value, label_max_value, n_indexes):
