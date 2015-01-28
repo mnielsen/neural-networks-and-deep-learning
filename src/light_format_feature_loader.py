@@ -30,7 +30,7 @@ def parse_line(line):
     # print "feature_vector: " + str(feature_vector)
     return (label, feature_vector, dimension)
 
-def load_data():
+def load_data(training_file):
     """Return light format feature data as a tuple containing the training data,
     the validation data, and the test data.
 
@@ -51,11 +51,8 @@ def load_data():
     That's done in the wrapper function ``load_data_wrapper()``, see
     below.
     """
-    
-    training_data_dir = "/home/awips/sample_data/svmdata.oneHourPrecipAsLabel/svm_case1_merged"
-    training_data_file = "svm_traindata.txt.1a.Z_0.5_0.5"
-    print training_data_dir + "/" + training_data_file
-    f = open(training_data_dir + "/" + training_data_file, "r")
+
+    f = open(training_file, "r")
     lines = f.readlines()
     number_of_feature_vectors = len(lines)
     feature_collection = []
@@ -95,7 +92,7 @@ def load_data():
     #f.close()
     #return (training_data, validation_data, test_data)
 
-def load_data_wrapper(label_min_value = 0, label_max_value = 10, n_indexes = 100):
+def load_data_wrapper(training_file, label_min_value = 0, label_max_value = 10, n_indexes = 100):
     """Return a tuple containing ``(training_data, validation_data,
     test_data)``. Based on ``load_data``, but the format is more
     convenient for use in our implementation of neural networks.
@@ -115,7 +112,7 @@ def load_data_wrapper(label_min_value = 0, label_max_value = 10, n_indexes = 100
     the training data and the validation / test data.  These formats
     turn out to be the most convenient for use in our neural network
     code."""
-    tr_d, va_d, te_d, dimension = load_data()
+    tr_d, va_d, te_d, dimension = load_data(training_file)
     
     print "label_min_value: " + str(label_min_value)
     print "label_max_value: " + str(label_max_value)
@@ -129,8 +126,8 @@ def load_data_wrapper(label_min_value = 0, label_max_value = 10, n_indexes = 100
     print "#####################################################################"
     print "tr_d.__len__(): " + str(tr_d.__len__())
     print "=== tr_d[0] is info about training feature vectors ==="
-    print "tr_d[0]: "
-    print tr_d[0]
+    #print "tr_d[0]: "
+    #print tr_d[0]
     count = 0
     print "tr_d[0][0].size (size/dimension of the first feature vector): " + str(tr_d[0][0].size)
     print "tr_d[0][1].size (size/dimension of the second feature vector): " + str(tr_d[0][1].size)
@@ -148,8 +145,8 @@ def load_data_wrapper(label_min_value = 0, label_max_value = 10, n_indexes = 100
     # tr_d[1] is a ndarray containing the label entries corresponding to the feature vectors, 
     # each entry is just the scalar  label/result value
     print "=== tr_d[1] is info about corresponding labels/results ==="
-    print "tr_d[1]: "
-    print tr_d[1]
+    #print "tr_d[1]: "
+    #print tr_d[1]
     print "tr_d[1][0] (label value for the 1st feature vector): " + str(tr_d[1][0]);
     print "tr_d[1][1] (label value for the 2nd feature vector): " + str(tr_d[1][1]);
     print "....."
@@ -173,7 +170,7 @@ def load_data_wrapper(label_min_value = 0, label_max_value = 10, n_indexes = 100
     print "training_inputs.__len__():" + str(training_inputs.__len__())
     # print "training_inputs: "
     for input in training_inputs:
-        print "single_training_input.size: " + str(input.size)
+        #print "single_training_input.size: " + str(input.size)
         # print input
         break # Print only the first input feature vector/image
     
@@ -185,7 +182,7 @@ def load_data_wrapper(label_min_value = 0, label_max_value = 10, n_indexes = 100
         training_results.append(vectorized_result(label_index, n_indexes))
     
     for result in training_results:
-        print "single_vectorized_result.size (label): " + str(result.size)
+        # print "single_vectorized_result.size (label): " + str(result.size)
         # print result
         break # Print only the first result(Or label, digit)
     
@@ -226,7 +223,11 @@ def vectorized_result(j, n_indexes):
 
 if __name__ == '__main__':
     import light_format_feature_loader
-    training_data, validation_data, test_data, dimension = light_format_feature_loader.load_data_wrapper()
+    training_data_dir = "/home/awips/sample_data/svmdata.oneHourPrecipAsLabel/svm_case1_merged"
+    training_data_filename = "svm_traindata.txt.1a.Z_0.5_0.5"
+    training_file = training_data_dir + "/" + training_data_filename
+    print "Training file path:" + training_file
+    training_data, validation_data, test_data, dimension = light_format_feature_loader.load_data_wrapper(training_file)
     
     # tmp test
     # tr_d, va_d, te_d, dimension = light_format_feature_loader.load_data()
