@@ -13,9 +13,18 @@ function usually called by our neural network code.
 
 # Third-party libraries
 import numpy as np
-
+import re
 
 def parse_line(line):
+    date_found = re.search('^20[0-9][0-9][0-9][0-9][0-9][0-9]_[0-9][0-9][0-9][0-9]', line)
+    if date_found:
+        return parse_line_light_format_with_date(line)
+    else:
+        return parse_line_light_format(line)
+    
+    # print "date_found: {0}".format(date_found.group(0))
+
+def parse_line_light_format(line):
     tokens = str(line).strip().split()
     #print tokens
     label = tokens[0]
@@ -29,6 +38,23 @@ def parse_line(line):
         feature_vector.append(float(index_value_pair[1]))
     # print "feature_vector: " + str(feature_vector)
     return (label, feature_vector, dimension)
+
+
+def parse_line_light_format_with_date(line):
+    tokens = str(line).strip().split()
+    #print tokens
+    label = tokens[1]
+    feature_vector = []
+    dimension = len(tokens) - 2
+    #print "dimension: " + str(dimension)
+    #print "label: " + str(label)
+    for i in range(2, dimension+2):
+        # print tokens[i]
+        index_value_pair = str(tokens[i]).split(":")
+        feature_vector.append(float(index_value_pair[1]))
+    # print "feature_vector: " + str(feature_vector)
+    return (label, feature_vector, dimension)
+
 
 def load_data(training_file):
     """Return light format feature data as a tuple containing the training data,
@@ -224,6 +250,7 @@ def vectorized_result(j, n_indexes):
 if __name__ == '__main__':
     import light_format_feature_loader
     training_data_dir = "/home/awips/sample_data/svmdata.oneHourPrecipAsLabel/svm_case1_merged"
+    # training_data_dir = "/home/awips/sample_data/svmdata.10minPrecipAsLabel/svm_case1_merged_all"
     training_data_filename = "svm_traindata.txt.1a.Z_0.5_0.5"
     training_file = training_data_dir + "/" + training_data_filename
     print "Training file path:" + training_file

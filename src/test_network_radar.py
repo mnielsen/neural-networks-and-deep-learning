@@ -11,8 +11,8 @@ rainfall_max_value = 100
 n_rainfall_indexes = 100 # for use in vectorized form of rainfall label (number of neurons for output layer)
 size_hidden_layer = 30 # Number of neurons for hidden layer
 
-training_data_dir = "/home/awips/sample_data/svmdata.oneHourPrecipAsLabel/svm_case1_merged"
-# training_data_dir = "/home/awips/sample_data/svmdata.10minPrecipAsLabel/svm_case1_merged"
+# training_data_dir = "/home/awips/sample_data/svmdata.oneHourPrecipAsLabel/svm_case1_merged"
+training_data_dir = "/home/awips/sample_data/svmdata.10minPrecipAsLabel/svm_case1_merged_all"
 
 filepath_list = glob.glob(training_data_dir + "/svm_traindata.txt.1a.*")
 filename_list = []
@@ -33,7 +33,7 @@ print ""
 """
 Hyper-parameters
 """
-epoches = 30
+epoches = 5
 mini_batch_size = 10
 training_rate = 2.0
 
