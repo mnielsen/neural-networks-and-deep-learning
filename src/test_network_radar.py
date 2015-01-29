@@ -12,9 +12,14 @@ n_rainfall_indexes = 100 # for use in vectorized form of rainfall label (number 
 size_hidden_layer = 30 # Number of neurons for hidden layer
 
 # training_data_dir = "/home/awips/sample_data/svmdata.oneHourPrecipAsLabel/svm_case1_merged"
-training_data_dir = "/home/awips/sample_data/svmdata.10minPrecipAsLabel/svm_case1_merged_all"
+#training_data_dir = "/home/awips/sample_data/svmdata.10minPrecipAsLabel/svm_case1_merged_all"
 
-filepath_list = glob.glob(training_data_dir + "/svm_traindata.txt.1a.*")
+# training_data_dir = "/home/awips/sample_data/svmdata.oneHourPrecipAsLabel/svm_case2_merged"
+training_data_dir = "/home/awips/sample_data/svmdata.10minPrecipAsLabel/svm_case2_merged_all"
+
+# filepath_list = glob.glob(training_data_dir + "/svm_traindata.txt.1a.*")
+filepath_list = glob.glob(training_data_dir + "/svm_traindata.txt.2a.*")
+
 filename_list = []
 print "==== Training file list ===="
 for filepath in filepath_list:
@@ -25,15 +30,17 @@ for filepath in filepath_list:
 #filename_list = []
 #filename_list.append("svm_traindata.txt.1a.Z_0.5_0.5")
 #filename_list.append("svm_traindata.txt.1a.V_0.5_0.5")
-
+#filename_list.append("svm_traindata.txt.2b.9999.0_-9999.0")
+log_fp.write("===== Training file list =====\n")
 for filename in filename_list:
     print filename
+    log_fp.write(filename + "\n")
 print ""
 
 """
 Hyper-parameters
 """
-epoches = 5
+epoches = 30
 mini_batch_size = 10
 training_rate = 2.0
 
@@ -54,6 +61,10 @@ for filename in filename_list:
     training_file = training_data_dir + "/" + filename
     training_data, validation_data, test_data, dimension = \
     light_format_feature_loader.load_data_wrapper(training_file, rainfall_min_value, rainfall_max_value, n_rainfall_indexes)
+
+    if training_data == None:
+        print "[ERROR] Training data in {0} is None, skipped training task".format(training_file)
+        continue
 
     log_fp.write("===== {0} =====\n".format(filename));
     log_fp.write("dimension(Number of neurons for input layer) : {0}\n".format(dimension))

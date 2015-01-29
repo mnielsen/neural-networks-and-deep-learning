@@ -84,12 +84,15 @@ def load_data(training_file):
     feature_collection = []
     feature_label_collection = []
     
+    if number_of_feature_vectors == 0:
+        return (None, None, None, None)
+    
     (_arg0, _arg1, dimension) = parse_line(lines[0])
     for line in lines:
         (_label, _feature_vector, _dimension) = parse_line(line)
         if _dimension != dimension:
             print "[Error] Inconsistent dimension found in the training data"
-            return 
+            return (None, None, None, None)
         feature_collection.append(_feature_vector)
         feature_label_collection.append(_label)
     
@@ -139,6 +142,10 @@ def load_data_wrapper(training_file, label_min_value = 0, label_max_value = 10, 
     turn out to be the most convenient for use in our neural network
     code."""
     tr_d, va_d, te_d, dimension = load_data(training_file)
+    
+    if tr_d == None:
+        print "[ERROR] No training examples are loaded"
+        return (None, None, None, None)
     
     print "label_min_value: " + str(label_min_value)
     print "label_max_value: " + str(label_max_value)
@@ -249,12 +256,17 @@ def vectorized_result(j, n_indexes):
 
 if __name__ == '__main__':
     import light_format_feature_loader
-    training_data_dir = "/home/awips/sample_data/svmdata.oneHourPrecipAsLabel/svm_case1_merged"
+    # training_data_dir = "/home/awips/sample_data/svmdata.oneHourPrecipAsLabel/svm_case1_merged"
     # training_data_dir = "/home/awips/sample_data/svmdata.10minPrecipAsLabel/svm_case1_merged_all"
-    training_data_filename = "svm_traindata.txt.1a.Z_0.5_0.5"
+    # training_data_dir = "/home/awips/sample_data/svmdata.oneHourPrecipAsLabel/svm_case2_merged"
+    training_data_dir = "/home/awips/sample_data/svmdata.10minPrecipAsLabel/svm_case2_merged_all"
+    #training_data_filename = "svm_traindata.txt.1a.Z_0.5_0.5"
+    training_data_filename = "svm_traindata.txt.2b.9999.0_-9999.0"
     training_file = training_data_dir + "/" + training_data_filename
     print "Training file path:" + training_file
     training_data, validation_data, test_data, dimension = light_format_feature_loader.load_data_wrapper(training_file)
+    
+    # print (training_data, validation_data, test_data, dimension)
     
     # tmp test
     # tr_d, va_d, te_d, dimension = light_format_feature_loader.load_data()
