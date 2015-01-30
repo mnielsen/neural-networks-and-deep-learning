@@ -2,7 +2,9 @@
 light_format_feature_loader
 ~~~~~~~~~~~~
 
-A library to load light format feature data specified by LIBSVM.  
+A library to load light format feature data specified by LIBSVM
+[label] [1:value1] [2:value2] ..... [n:valuen]
+
 For details of the data structures that are returned, see the doc strings for ``load_data``
 and ``load_data_wrapper``.  In practice, ``load_data_wrapper`` is the
 function usually called by our neural network code.
