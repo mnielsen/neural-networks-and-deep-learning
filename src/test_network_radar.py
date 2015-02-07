@@ -14,15 +14,16 @@ size_hidden_layer = 30 # Number of neurons for hidden layer
 # training_data_dir = "/home/awips/sample_data/svmdata.oneHourPrecipAsLabel/svm_case1_merged"
 # training_data_dir = "/home/awips/sample_data/svmdata.10minPrecipAsLabel/svm_case1_merged_all"
 # training_data_dir = "/home/awips/sample_data/svmdata.10minPrecipAsLabel/svm_case1_merged"
-training_data_dir = "/home/awips/sample_data/svmdata.10minPrecipAsLabel/svm_case1_merged_typhoon"
+# training_data_dir = "/home/awips/sample_data/svmdata.10minPrecipAsLabel/svm_case1_merged_typhoon"
 
 # training_data_dir = "/home/awips/sample_data/svmdata.oneHourPrecipAsLabel/svm_case2_merged"
 # training_data_dir = "/home/awips/sample_data/svmdata.10minPrecipAsLabel/svm_case2_merged_all"
 # training_data_dir = "/home/awips/sample_data/svmdata.10minPrecipAsLabel/svm_case2_merged"
 # training_data_dir = "/home/awips/sample_data/svmdata.10minPrecipAsLabel/svm_case2_merged_typhoon"
 
-filepath_list = glob.glob(training_data_dir + "/svm_traindata.txt.1a.*")
-# filepath_list = glob.glob(training_data_dir + "/svm_traindata.txt.2a.*")
+training_data_dir = "/home/awips/sample_data/svmdata.10minPrecipAsLabel/svm_case3_merged_all"
+
+filepath_list = glob.glob(training_data_dir + "/svm_traindata.txt.3a.*")
 
 filename_list = []
 print "==== Training file list ===="
