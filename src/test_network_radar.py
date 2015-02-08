@@ -21,7 +21,8 @@ size_hidden_layer = 30 # Number of neurons for hidden layer
 # training_data_dir = "/home/awips/sample_data/svmdata.10minPrecipAsLabel/svm_case2_merged"
 # training_data_dir = "/home/awips/sample_data/svmdata.10minPrecipAsLabel/svm_case2_merged_typhoon"
 
-training_data_dir = "/home/awips/sample_data/svmdata.10minPrecipAsLabel/svm_case3_merged_all"
+# training_data_dir = "/home/awips/sample_data/svmdata.10minPrecipAsLabel/svm_case3_merged_all"
+training_data_dir = "/home/awips/sample_data/svmdata.10minPrecipAsLabel/svm_case3_merged_all_middle_value_only"
 
 filepath_list = glob.glob(training_data_dir + "/svm_traindata.txt.3a.*")
 
