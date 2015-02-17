@@ -23,7 +23,7 @@ import numpy as np
 
 #### Define the quadratic and cross-entropy cost functions
 
-class QuadraticCost:
+class QuadraticCost(object):
 
     @staticmethod
     def fn(a, y):
@@ -39,7 +39,7 @@ class QuadraticCost:
         return (a-y) * sigmoid_prime_vec(z)
 
 
-class CrossEntropyCost:
+class CrossEntropyCost(object):
 
     @staticmethod
     def fn(a, y):
@@ -65,7 +65,7 @@ class CrossEntropyCost:
 
 
 #### Main Network class
-class Network():
+class Network(object):
 
     def __init__(self, sizes, cost=CrossEntropyCost):
         """The list ``sizes`` contains the number of neurons in the respective
@@ -97,7 +97,7 @@ class Network():
 
         """
         self.biases = [np.random.randn(y, 1) for y in self.sizes[1:]]
-        self.weights = [np.random.randn(y, x)/np.sqrt(x) 
+        self.weights = [np.random.randn(y, x)/np.sqrt(x)
                         for x, y in zip(self.sizes[:-1], self.sizes[1:])]
 
     def large_weight_initializer(self):
@@ -117,7 +117,7 @@ class Network():
 
         """
         self.biases = [np.random.randn(y, 1) for y in self.sizes[1:]]
-        self.weights = [np.random.randn(y, x) 
+        self.weights = [np.random.randn(y, x)
                         for x, y in zip(self.sizes[:-1], self.sizes[1:])]
 
     def feedforward(self, a):
@@ -126,12 +126,12 @@ class Network():
             a = sigmoid_vec(np.dot(w, a)+b)
         return a
 
-    def SGD(self, training_data, epochs, mini_batch_size, eta, 
-            lmbda = 0.0, 
-            evaluation_data=None, 
+    def SGD(self, training_data, epochs, mini_batch_size, eta,
+            lmbda = 0.0,
+            evaluation_data=None,
             monitor_evaluation_cost=False,
             monitor_evaluation_accuracy=False,
-            monitor_training_cost=False, 
+            monitor_training_cost=False,
             monitor_training_accuracy=False):
         """Train the neural network using mini-batch stochastic gradient
         descent.  The ``training_data`` is a list of tuples ``(x, y)``
@@ -201,9 +201,9 @@ class Network():
             delta_nabla_b, delta_nabla_w = self.backprop(x, y)
             nabla_b = [nb+dnb for nb, dnb in zip(nabla_b, delta_nabla_b)]
             nabla_w = [nw+dnw for nw, dnw in zip(nabla_w, delta_nabla_w)]
-        self.weights = [(1-eta*(lmbda/n))*w-(eta/len(mini_batch))*nw 
+        self.weights = [(1-eta*(lmbda/n))*w-(eta/len(mini_batch))*nw
                         for w, nw in zip(self.weights, nabla_w)]
-        self.biases = [b-(eta/len(mini_batch))*nb 
+        self.biases = [b-(eta/len(mini_batch))*nb
                        for b, nb in zip(self.biases, nabla_b)]
 
     def backprop(self, x, y):
@@ -244,7 +244,7 @@ class Network():
         """Return the number of inputs in ``data`` for which the neural
         network outputs the correct result. The neural network's
         output is assumed to be the index of whichever neuron in the
-        final layer has the highest activation.  
+        final layer has the highest activation.
 
         The flag ``convert`` should be set to False if the data set is
         validation or test data (the usual case), and to True if the
@@ -264,7 +264,7 @@ class Network():
 
         """
         if convert:
-            results = [(np.argmax(self.feedforward(x)), np.argmax(y)) 
+            results = [(np.argmax(self.feedforward(x)), np.argmax(y))
                        for (x, y) in data]
         else:
             results = [(np.argmax(self.feedforward(x)), y)

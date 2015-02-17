@@ -9,7 +9,7 @@ perceptron learning algorithm."""
 # Third-party library
 import numpy as np
 
-class Perceptron():
+class Perceptron(object):
     """ A Perceptron instance can take a function and attempt to
     ``learn`` a bias and set of weights that compute that function,
     using the perceptron learning algorithm."""
@@ -26,7 +26,7 @@ class Perceptron():
         # inputs it is: [np.array([0, 0, 0]), np.array([0, 0, 1]), ...]
         self.inputs = [np.array([int(y)
                         for y in bin(x).lstrip("0b").zfill(num_inputs)])
-                       for x in xrange(2**num_inputs)]      
+                       for x in xrange(2**num_inputs)]
 
     def output(self, x):
         """ Return the output (0 or 1) from the perceptron, with input
@@ -37,12 +37,12 @@ class Perceptron():
         """ Find a bias and a set of weights for a perceptron that
         computes the function ``f``. ``eta`` is the learning rate, and
         should be a small positive number.  Does not terminate when
-        the function cannot be computed using a perceptron."""        
+        the function cannot be computed using a perceptron."""
         # initialize the bias and weights with random values
         self.bias = np.random.normal()
         self.weights = np.random.randn(self.num_inputs)
         number_of_errors = -1
-        while number_of_errors != 0:         
+        while number_of_errors != 0:
             number_of_errors = 0
             print "Beginning iteration"
             print "Bias: {:.3f}".format(self.bias)
@@ -56,11 +56,11 @@ class Perceptron():
                     self.weights = self.weights+eta*error*x
             print "Number of errors:", number_of_errors, "\n"
 
-def f(x): 
+def f(x):
     """ Target function for the perceptron learning algorithm.  I've
     chosen the NAND gate, but any function is okay, with the caveat
     that the algorithm won't terminate if ``f`` cannot be computed by
-    a perceptron."""    
+    a perceptron."""
     return int(not (x[0] and x[1]))
 
 if __name__ == "__main__":

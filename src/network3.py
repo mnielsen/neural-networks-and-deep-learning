@@ -78,8 +78,8 @@ def load_data_shared(filename="../data/mnist.pkl.gz"):
     return [shared(training_data), shared(validation_data), shared(test_data)]
 
 #### Main class used to construct and train networks
-class Network():
-    
+class Network(object):
+
     def __init__(self, layers, mini_batch_size):
         """Takes a list of `layers`, describing the network architecture, and
         a value for the `mini_batch_size` to be used during training
@@ -89,7 +89,7 @@ class Network():
         self.layers = layers
         self.mini_batch_size = mini_batch_size
         self.params = [param for layer in self.layers for param in layer.params]
-        self.x = T.matrix("x")  
+        self.x = T.matrix("x")
         self.y = T.ivector("y")
         init_layer = self.layers[0]
         init_layer.set_inpt(self.x, self.x, self.mini_batch_size)
@@ -100,7 +100,7 @@ class Network():
         self.output = self.layers[-1].output
         self.output_dropout = self.layers[-1].output_dropout
 
-    def SGD(self, training_data, epochs, mini_batch_size, eta, 
+    def SGD(self, training_data, epochs, mini_batch_size, eta,
             validation_data, test_data, lmbda=0.0):
         """Train the network using mini-batch stochastic gradient descent."""
         training_x, training_y = training_data
@@ -117,7 +117,7 @@ class Network():
         cost = self.layers[-1].cost(self)+\
                0.5*lmbda*l2_norm_squared/num_training_batches
         grads = T.grad(cost, self.params)
-        updates = [(param, param-eta*grad) 
+        updates = [(param, param-eta*grad)
                    for param, grad in zip(self.params, grads)]
 
         # define functions to train a mini-batch, and to compute the
@@ -128,29 +128,29 @@ class Network():
             givens={
                 self.x:
                 training_x[i*self.mini_batch_size: (i+1)*self.mini_batch_size],
-                self.y: 
+                self.y:
                 training_y[i*self.mini_batch_size: (i+1)*self.mini_batch_size]
             })
         validate_mb_accuracy = theano.function(
             [i], self.layers[-1].accuracy(self.y),
             givens={
-                self.x: 
+                self.x:
                 validation_x[i*self.mini_batch_size: (i+1)*self.mini_batch_size],
-                self.y: 
+                self.y:
                 validation_y[i*self.mini_batch_size: (i+1)*self.mini_batch_size]
             })
         test_mb_accuracy = theano.function(
             [i], self.layers[-1].accuracy(self.y),
             givens={
-                self.x: 
+                self.x:
                 test_x[i*self.mini_batch_size: (i+1)*self.mini_batch_size],
-                self.y: 
+                self.y:
                 test_y[i*self.mini_batch_size: (i+1)*self.mini_batch_size]
             })
         self.test_mb_predictions = theano.function(
             [i], self.layers[-1].y_out,
             givens={
-                self.x: 
+                self.x:
                 test_x[i*self.mini_batch_size: (i+1)*self.mini_batch_size]
             })
         # Do the actual training
@@ -158,7 +158,7 @@ class Network():
         for epoch in xrange(epochs):
             for minibatch_index in xrange(num_training_batches):
                 iteration = num_training_batches*epoch+minibatch_index
-                if iteration % 1000 == 0: 
+                if iteration % 1000 == 0:
                     print("Training mini-batch number {0}".format(iteration))
                 cost_ij = train_mb(minibatch_index)
                 if (iteration+1) % num_training_batches == 0:
@@ -182,7 +182,7 @@ class Network():
 
 #### Define layer types
 
-class ConvPoolLayer():
+class ConvPoolLayer(object):
     """Used to create a combination of a convolutional and a max-pooling
     layer.  A more sophisticated implementation would separate the
     two, but for our purposes we'll always use them together, and it
@@ -190,10 +190,10 @@ class ConvPoolLayer():
 
     """
 
-    def __init__(self, filter_shape, image_shape, poolsize=(2, 2), 
+    def __init__(self, filter_shape, image_shape, poolsize=(2, 2),
                  activation_fn=sigmoid):
         """`filter_shape` is a tuple of length 4, whose entries are the number
-        of filters, the number of input feature maps, the filter height, and the 
+        of filters, the number of input feature maps, the filter height, and the
         filter width.
 
         `image_shape` is a tuple of length 4, whose entries are the
@@ -233,7 +233,7 @@ class ConvPoolLayer():
             pooled_out + self.b.dimshuffle('x', 0, 'x', 'x'))
         self.output_dropout = self.output # no dropout in the convolutional layers
 
-class FullyConnectedLayer():
+class FullyConnectedLayer(object):
 
     def __init__(self, n_in, n_out, activation_fn=sigmoid, p_dropout=0.0):
         self.n_in = n_in
@@ -267,7 +267,7 @@ class FullyConnectedLayer():
         "Return the accuracy for the mini-batch."
         return T.mean(T.eq(y, self.y_out))
 
-class SoftmaxLayer():
+class SoftmaxLayer(object):
 
     def __init__(self, n_in, n_out, p_dropout=0.0):
         self.n_in = n_in
