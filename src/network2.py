@@ -157,7 +157,7 @@ class Network(object):
         evaluation_cost, evaluation_accuracy = [], []
         training_cost, training_accuracy = [], []
         for j in xrange(epochs):
-            random.shuffle(training_data)
+            np.random.shuffle(training_data)
             mini_batches = [
                 training_data[k:k+mini_batch_size]
                 for k in xrange(0, n, mini_batch_size)]
