@@ -25,6 +25,9 @@ http://deeplearning.net/tutorial/lenet.html ), from Misha Denil's
 implementation of dropout (https://github.com/mdenil/dropout ), and
 from Chris Olah (http://colah.github.io ).
 
+Written for Theano 0.6 and 0.7, needs some changes for more recent
+versions of Theano.
+
 """
 
 #### Libraries
