@@ -25,8 +25,7 @@ http://deeplearning.net/tutorial/lenet.html ), from Misha Denil's
 implementation of dropout (https://github.com/mdenil/dropout ), and
 from Chris Olah (http://colah.github.io ).
 
-Written for Theano 0.6 and 0.7, needs some changes for more recent
-versions of Theano.
+Written for Theano 0.9.
 
 """
 
@@ -39,7 +38,7 @@ import gzip
 import numpy as np
 import theano
 import theano.tensor as T
-from theano.tensor.nnet import conv
+from theano.tensor.nnet import conv2d
 from theano.tensor.nnet import softmax
 from theano.tensor import shared_randomstreams
 from theano.tensor.signal import downsample
@@ -227,7 +226,7 @@ class ConvPoolLayer(object):
 
     def set_inpt(self, inpt, inpt_dropout, mini_batch_size):
         self.inpt = inpt.reshape(self.image_shape)
-        conv_out = conv.conv2d(
+        conv_out = conv2d(
             input=self.inpt, filters=self.w, filter_shape=self.filter_shape,
             image_shape=self.image_shape)
         pooled_out = downsample.max_pool_2d(
