@@ -9,9 +9,7 @@ has a repository for Python 3
 will not be updating the current repository for Python 3
 compatibility.
 
-The program `src/network3.py` uses version 0.6 or 0.7 of the Theano
-library.  It needs modification for compatibility with later versions
-of the library.  I will not be making such modifications.
+The program `src/network3.py` uses version 0.9 of the Theano library.
 
 As the code is written to accompany the book, I don't intend to add
 new features. However, bug reports are welcome, and you should feel
