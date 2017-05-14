@@ -36,9 +36,8 @@ ax.set_zlim3d(0, 2)
 ax.w_xaxis.set_major_locator(LinearLocator(3))
 ax.w_yaxis.set_major_locator(LinearLocator(3))
 ax.w_zaxis.set_major_locator(LinearLocator(3))
+ax.text(1.79, 0, 1.62, "$C$", fontsize=20)
 ax.text(0.05, -1.8, 0, "$v_1$", fontsize=20)
 ax.text(1.5, -0.25, 0, "$v_2$", fontsize=20)
-ax.text(1.79, 0, 1.62, "$C$", fontsize=20)
 
 plt.show()
-

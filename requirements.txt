@@ -1,0 +1,4 @@
+numpy
+scikit-learn
+scipy
+Theano
