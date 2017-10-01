@@ -223,7 +223,7 @@ class Network(object):
             activation = sigmoid(z)
             activations.append(activation)
         # backward pass
-        delta = (self.cost).delta(zs[-1], activations[-1], y)
+        delta = (self.cost).delta(zs[-1], activations[-1], y) * sigmoid_prime(zs[-1])
         nabla_b[-1] = delta
         nabla_w[-1] = np.dot(delta, activations[-2].transpose())
         # Note that the variable l in the loop below is used a little
