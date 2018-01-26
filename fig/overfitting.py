@@ -35,9 +35,9 @@ def main(filename, num_epochs,
     """
     run_network(filename, num_epochs, training_set_size, lmbda)
     make_plots(filename, num_epochs, 
-               test_accuracy_xmin,
                training_cost_xmin,
-               test_accuracy_xmin, 
+               test_accuracy_xmin,
+               test_cost_xmin, 
                training_accuracy_xmin,
                training_set_size)
                        
