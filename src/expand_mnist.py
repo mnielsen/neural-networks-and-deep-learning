@@ -47,9 +47,9 @@ else:
                 (1,  1, "last",  0),
                 (-1, 1, "last",  27)]:
             new_img = np.roll(image, d, axis)
-            if index_position == "first": 
+            if index_position == "first":
                 new_img[index, :] = np.zeros(28)
-            else: 
+            else:
                 new_img[:, index] = np.zeros(28)
             expanded_training_pairs.append((np.reshape(new_img, 784), y))
     random.shuffle(expanded_training_pairs)
