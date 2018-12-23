@@ -1,3 +1,9 @@
+![](https://img.shields.io/badge/python-2.7-brightgreen.svg)
+![](https://img.shields.io/badge/numpy-1.13.3-orange.svg)
+![](https://img.shields.io/badge/scikit--learn-0.19.0-blue.svg)
+![](https://img.shields.io/badge/scipy-0.19.1-ff69b4.svg)
+![](https://img.shields.io/badge/theano-0.7.0-lightgrey.svg)
+[![](https://img.shields.io/appveyor/ci/gruntjs/grunt.svg)](https://github.com/mnielsen/neural-networks-and-deep-learning)
 # Code samples for "Neural Networks and Deep Learning"
 
 This repository contains code samples for my book on ["Neural Networks
