@@ -6,7 +6,7 @@ Draws images based on the MNIST data."""
 
 #### Libraries
 # Standard library
-import cPickle
+import pickle
 import sys
 
 # My library
@@ -203,10 +203,10 @@ def plot_rotated_image(image):
             if x2 < -13 or x2 > 13 or y2 < -13 or y2 > 13: continue
             # If we're in bounds, average the nearby entries.
             value \
-                = (1-delta_x)*(1-delta_y)*image_value(image, x2, y2)+\
-                (1-delta_x)*delta_y*image_value(image, x2, y2+1)+\
-                delta_x*(1-delta_y)*image_value(image, x2+1, y2)+\
-                delta_x*delta_y*image_value(image, x2+1, y2+1)
+                = (1-delta_x)*(1-delta_y)*image_value(image, int(x2), int(y2))+\
+                (1-delta_x)*delta_y*image_value(image, int(x2), int(y2+1))+\
+                delta_x*(1-delta_y)*image_value(image, int(x2+1), int(y2))+\
+                delta_x*delta_y*image_value(image, int(x2+1), int(y2+1))
             # Rescale the value by a hand-set fudge factor.  This
             # seems to be necessary because the averaging doesn't
             # quite work right.  The fudge-factor should probably be
@@ -218,8 +218,10 @@ def plot_rotated_image(image):
 def load_data():
     """ Return the MNIST data as a tuple containing the training data,
     the validation data, and the test data."""
-    f = open('../data/mnist.pkl', 'rb')
-    training_set, validation_set, test_set = cPickle.load(f)
+    f = gzip.open('../data/mnist.pkl.gz', 'rb')
+    u = pickle._Unpickler(f)
+    u.encoding = 'latin1'
+    training_set, validation_set, test_set = u.load(f)
     f.close()
     return (training_set, validation_set, test_set)
 
