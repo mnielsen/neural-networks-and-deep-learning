@@ -12,9 +12,11 @@ and omits many desirable features.
 #### Libraries
 # Standard library
 import random
+import time
 
 # Third-party libraries
 import numpy as np
+
 
 class Network(object):
 
@@ -54,17 +56,19 @@ class Network(object):
         if test_data: n_test = len(test_data)
         n = len(training_data)
         for j in range(epochs):
+            time1 = time.time()
             random.shuffle(training_data)
             mini_batches = [
                 training_data[k:k+mini_batch_size]
                 for k in range(0, n, mini_batch_size)]
             for mini_batch in mini_batches:
                 self.update_mini_batch(mini_batch, eta)
+            time2 = time.time()
             if test_data:
-                print("Epoch {0}: {1} / {2}".format(
-                    j, self.evaluate(test_data), n_test))
+                print("Epoch {0}: {1} / {2}, took {3:.2f} seconds".format(
+                    j, self.evaluate(test_data), n_test, time2-time1))
             else:
-                print("Epoch {0} complete".format(j))
+                print("Epoch {0} complete in {1:.2f} seconds".format(j, time2-time1))
 
     def update_mini_batch(self, mini_batch, eta):
         """Update the network's weights and biases by applying
