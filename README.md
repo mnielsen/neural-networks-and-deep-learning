@@ -1,6 +1,6 @@
-## This fork is for the latest python versions (3.8.x to 3.10.x) implementation
+## This fork is made to work with the latest python versions (3.8.x to 3.10.x)
 
-This is a fork of [Michael Nielsen](https://github.com/mnielsen/neural-networks-and-deep-learning) repository and is meant to be updated with the latest python and dependencies versions. Most things have been updated and work, except for `src/conv.py` and `src/network3.py`, which I haven't worked on yet, will do soon. Any help is appreciated and if you spotted any problems, please open an issue and/or a PR.
+This is a fork of [Michael Nielsen](https://github.com/mnielsen/neural-networks-and-deep-learning) repository and is meant to be updated with the latest python and dependency versions. Most things have been updated and currently work. Any help is appreciated and if you spotted any problems, please open an issue and/or a PR.
 
 # Code samples for "Neural Networks and Deep Learning"
 
