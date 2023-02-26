@@ -164,26 +164,26 @@ class Network(object):
             for mini_batch in mini_batches:
                 self.update_mini_batch(
                     mini_batch, eta, lmbda, len(training_data))
-            print "Epoch %s training complete" % j
+            print("Epoch %s training complete" % j)
             if monitor_training_cost:
                 cost = self.total_cost(training_data, lmbda)
                 training_cost.append(cost)
-                print "Cost on training data: {}".format(cost)
+                print ("Cost on training data: {}".format(cost))
             if monitor_training_accuracy:
                 accuracy = self.accuracy(training_data, convert=True)
                 training_accuracy.append(accuracy)
-                print "Accuracy on training data: {} / {}".format(
-                    accuracy, n)
+                print ("Accuracy on training data: {} / {}".format(
+                    accuracy, n))
             if monitor_evaluation_cost:
                 cost = self.total_cost(evaluation_data, lmbda, convert=True)
                 evaluation_cost.append(cost)
-                print "Cost on evaluation data: {}".format(cost)
+                print ("Cost on evaluation data: {}".format(cost))
             if monitor_evaluation_accuracy:
                 accuracy = self.accuracy(evaluation_data)
                 evaluation_accuracy.append(accuracy)
-                print "Accuracy on evaluation data: {} / {}".format(
-                    self.accuracy(evaluation_data), n_data)
-            print
+                print ("Accuracy on evaluation data: {} / {}".format(
+                    self.accuracy(evaluation_data), n_data))
+
         return evaluation_cost, evaluation_accuracy, \
             training_cost, training_accuracy
 
@@ -223,7 +223,22 @@ class Network(object):
             activation = sigmoid(z)
             activations.append(activation)
         # backward pass
-        delta = (self.cost).delta(zs[-1], activations[-1], y)
+        delta = (self.cost).delta(zs[-1], activations[-1], vectorized_result(y))
+        # Hi mate! I am making this change as an effort to reach to you, to clarify an error(as I perceive)
+        # in the cross-entropy loss function in your very valuable book. - chapter "Improving the way neural networks learn"
+        # This change has been made because, as I see it, we are incorrectly substituting the
+        # output y corresponding to the training example x, for individual "expected" output of the neurons.
+        #
+        # As per equation no 67 in the book, dC/dw(ij)(L) = 1/n * sum(a(k)(L-1) * (a(j)(L) - y(j)))
+        # 1. I could not find a detailed description about how to arrive at expected value of output for each neuron in the outp laer.
+        # 2. Only in this code, I see that the expected values are assumed to be zero for all other neurons, expect the one
+        #    which has the same index as the label for training example, wherein the index arbitrarily starts from first neuron in the output layer.
+        # 3. But, this expected value was not used in calculation for delta variable above.
+        # 4. Instead, the original code uses training output y to be subtracted from activations[-1], instead of expected value.
+        #
+        # I believe I am correct in my understanding of how to calculate delta for last layer, and what is given in your
+        # book also makes perfect mathematical sense to me. I would really appreciate if you could clarify this for me
+        # in the middle of your busy schedule. - Arun Ramamurthy, Sydney, NSW. (arun_r80@yahoo.co.in, +61 434 336 951
         nabla_b[-1] = delta
         nabla_w[-1] = np.dot(delta, activations[-2].transpose())
         # Note that the variable l in the loop below is used a little
