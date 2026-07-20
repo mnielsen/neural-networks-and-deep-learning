@@ -32,51 +32,45 @@ versions of Theano.
 
 #### Libraries
 # Standard library
-import cPickle
+import pickle
 import gzip
 
 # Third-party libraries
 import numpy as np
-import theano
-import theano.tensor as T
-from theano.tensor.nnet import conv
-from theano.tensor.nnet import softmax
-from theano.tensor import shared_randomstreams
-from theano.tensor.signal import downsample
+import pytensor
+import pytensor.tensor as T
+from pytensor.tensor.signal.conv import convolve2d
+from pytensor.tensor.special import softmax
+from pytensor.tensor.random.utils import RandomStream
 
 # Activation functions for neurons
 def linear(z): return z
 def ReLU(z): return T.maximum(0.0, z)
-from theano.tensor.nnet import sigmoid
-from theano.tensor import tanh
+from pytensor.tensor import sigmoid, tanh
 
 
 #### Constants
-GPU = True
+GPU = False
 if GPU:
-    print "Trying to run under a GPU.  If this is not desired, then modify "+\
-        "network3.py\nto set the GPU flag to False."
-    try: theano.config.device = 'gpu'
-    except: pass # it's already set
-    theano.config.floatX = 'float32'
+    print("GPU mode requested. Configure PYTENSOR_FLAGS before importing network3.")
+    pytensor.config.floatX = 'float32'
 else:
-    print "Running with a CPU.  If this is not desired, then the modify "+\
-        "network3.py to set\nthe GPU flag to True."
+    print("Running with a CPU. Set PYTENSOR_FLAGS before launch to use another backend.")
 
 #### Load the MNIST data
 def load_data_shared(filename="../data/mnist.pkl.gz"):
     f = gzip.open(filename, 'rb')
-    training_data, validation_data, test_data = cPickle.load(f)
+    training_data, validation_data, test_data = pickle.load(f, encoding="latin1")
     f.close()
     def shared(data):
         """Place the data into shared variables.  This allows Theano to copy
         the data to the GPU, if one is available.
 
         """
-        shared_x = theano.shared(
-            np.asarray(data[0], dtype=theano.config.floatX), borrow=True)
-        shared_y = theano.shared(
-            np.asarray(data[1], dtype=theano.config.floatX), borrow=True)
+        shared_x = pytensor.shared(
+            np.asarray(data[0], dtype=pytensor.config.floatX), borrow=True)
+        shared_y = pytensor.shared(
+            np.asarray(data[1], dtype=pytensor.config.floatX), borrow=True)
         return shared_x, T.cast(shared_y, "int32")
     return [shared(training_data), shared(validation_data), shared(test_data)]
 
@@ -96,7 +90,7 @@ class Network(object):
         self.y = T.ivector("y")
         init_layer = self.layers[0]
         init_layer.set_inpt(self.x, self.x, self.mini_batch_size)
-        for j in xrange(1, len(self.layers)):
+        for j in range(1, len(self.layers)):
             prev_layer, layer  = self.layers[j-1], self.layers[j]
             layer.set_inpt(
                 prev_layer.output, prev_layer.output_dropout, self.mini_batch_size)
@@ -111,9 +105,9 @@ class Network(object):
         test_x, test_y = test_data
 
         # compute number of minibatches for training, validation and testing
-        num_training_batches = size(training_data)/mini_batch_size
-        num_validation_batches = size(validation_data)/mini_batch_size
-        num_test_batches = size(test_data)/mini_batch_size
+        num_training_batches = size(training_data)//mini_batch_size
+        num_validation_batches = size(validation_data)//mini_batch_size
+        num_test_batches = size(test_data)//mini_batch_size
 
         # define the (regularized) cost function, symbolic gradients, and updates
         l2_norm_squared = sum([(layer.w**2).sum() for layer in self.layers])
@@ -126,7 +120,7 @@ class Network(object):
         # define functions to train a mini-batch, and to compute the
         # accuracy in validation and test mini-batches.
         i = T.lscalar() # mini-batch index
-        train_mb = theano.function(
+        train_mb = pytensor.function(
             [i], cost, updates=updates,
             givens={
                 self.x:
@@ -134,7 +128,7 @@ class Network(object):
                 self.y:
                 training_y[i*self.mini_batch_size: (i+1)*self.mini_batch_size]
             })
-        validate_mb_accuracy = theano.function(
+        validate_mb_accuracy = pytensor.function(
             [i], self.layers[-1].accuracy(self.y),
             givens={
                 self.x:
@@ -142,7 +136,7 @@ class Network(object):
                 self.y:
                 validation_y[i*self.mini_batch_size: (i+1)*self.mini_batch_size]
             })
-        test_mb_accuracy = theano.function(
+        test_mb_accuracy = pytensor.function(
             [i], self.layers[-1].accuracy(self.y),
             givens={
                 self.x:
@@ -150,7 +144,7 @@ class Network(object):
                 self.y:
                 test_y[i*self.mini_batch_size: (i+1)*self.mini_batch_size]
             })
-        self.test_mb_predictions = theano.function(
+        self.test_mb_predictions = pytensor.function(
             [i], self.layers[-1].y_out,
             givens={
                 self.x:
@@ -158,15 +152,15 @@ class Network(object):
             })
         # Do the actual training
         best_validation_accuracy = 0.0
-        for epoch in xrange(epochs):
-            for minibatch_index in xrange(num_training_batches):
+        for epoch in range(epochs):
+            for minibatch_index in range(num_training_batches):
                 iteration = num_training_batches*epoch+minibatch_index
                 if iteration % 1000 == 0:
                     print("Training mini-batch number {0}".format(iteration))
                 cost_ij = train_mb(minibatch_index)
                 if (iteration+1) % num_training_batches == 0:
                     validation_accuracy = np.mean(
-                        [validate_mb_accuracy(j) for j in xrange(num_validation_batches)])
+                        [validate_mb_accuracy(j) for j in range(num_validation_batches)])
                     print("Epoch {0}: validation accuracy {1:.2%}".format(
                         epoch, validation_accuracy))
                     if validation_accuracy >= best_validation_accuracy:
@@ -175,7 +169,7 @@ class Network(object):
                         best_iteration = iteration
                         if test_data:
                             test_accuracy = np.mean(
-                                [test_mb_accuracy(j) for j in xrange(num_test_batches)])
+                                [test_mb_accuracy(j) for j in range(num_test_batches)])
                             print('The corresponding test accuracy is {0:.2%}'.format(
                                 test_accuracy))
         print("Finished training network.")
@@ -213,25 +207,36 @@ class ConvPoolLayer(object):
         self.activation_fn=activation_fn
         # initialize weights and biases
         n_out = (filter_shape[0]*np.prod(filter_shape[2:])/np.prod(poolsize))
-        self.w = theano.shared(
+        self.w = pytensor.shared(
             np.asarray(
                 np.random.normal(loc=0, scale=np.sqrt(1.0/n_out), size=filter_shape),
-                dtype=theano.config.floatX),
+                dtype=pytensor.config.floatX),
             borrow=True)
-        self.b = theano.shared(
+        self.b = pytensor.shared(
             np.asarray(
                 np.random.normal(loc=0, scale=1.0, size=(filter_shape[0],)),
-                dtype=theano.config.floatX),
+                dtype=pytensor.config.floatX),
             borrow=True)
         self.params = [self.w, self.b]
 
     def set_inpt(self, inpt, inpt_dropout, mini_batch_size):
         self.inpt = inpt.reshape(self.image_shape)
-        conv_out = conv.conv2d(
-            input=self.inpt, filters=self.w, filter_shape=self.filter_shape,
-            image_shape=self.image_shape)
-        pooled_out = downsample.max_pool_2d(
-            input=conv_out, ds=self.poolsize, ignore_border=True)
+        # PyTensor 3 no longer ships Theano's old nnet.conv2d/max_pool_2d
+        # wrappers.  Broadcast over batches and filters, sum input channels,
+        # then perform non-overlapping max pooling explicitly.
+        conv_out = convolve2d(
+            self.inpt[:, None, :, :, :], self.w[None, :, :, :, :],
+            mode="valid").sum(axis=2)
+        out_h = self.image_shape[2] - self.filter_shape[2] + 1
+        out_w = self.image_shape[3] - self.filter_shape[3] + 1
+        pooled_h = out_h // self.poolsize[0]
+        pooled_w = out_w // self.poolsize[1]
+        trimmed = conv_out[:, :, :pooled_h*self.poolsize[0],
+                           :pooled_w*self.poolsize[1]]
+        pooled_out = trimmed.reshape((
+            self.image_shape[0], self.filter_shape[0],
+            pooled_h, self.poolsize[0], pooled_w, self.poolsize[1]
+        )).max(axis=(3, 5))
         self.output = self.activation_fn(
             pooled_out + self.b.dimshuffle('x', 0, 'x', 'x'))
         self.output_dropout = self.output # no dropout in the convolutional layers
@@ -244,15 +249,15 @@ class FullyConnectedLayer(object):
         self.activation_fn = activation_fn
         self.p_dropout = p_dropout
         # Initialize weights and biases
-        self.w = theano.shared(
+        self.w = pytensor.shared(
             np.asarray(
                 np.random.normal(
                     loc=0.0, scale=np.sqrt(1.0/n_out), size=(n_in, n_out)),
-                dtype=theano.config.floatX),
+                dtype=pytensor.config.floatX),
             name='w', borrow=True)
-        self.b = theano.shared(
+        self.b = pytensor.shared(
             np.asarray(np.random.normal(loc=0.0, scale=1.0, size=(n_out,)),
-                       dtype=theano.config.floatX),
+                       dtype=pytensor.config.floatX),
             name='b', borrow=True)
         self.params = [self.w, self.b]
 
@@ -277,21 +282,23 @@ class SoftmaxLayer(object):
         self.n_out = n_out
         self.p_dropout = p_dropout
         # Initialize weights and biases
-        self.w = theano.shared(
-            np.zeros((n_in, n_out), dtype=theano.config.floatX),
+        self.w = pytensor.shared(
+            np.zeros((n_in, n_out), dtype=pytensor.config.floatX),
             name='w', borrow=True)
-        self.b = theano.shared(
-            np.zeros((n_out,), dtype=theano.config.floatX),
+        self.b = pytensor.shared(
+            np.zeros((n_out,), dtype=pytensor.config.floatX),
             name='b', borrow=True)
         self.params = [self.w, self.b]
 
     def set_inpt(self, inpt, inpt_dropout, mini_batch_size):
         self.inpt = inpt.reshape((mini_batch_size, self.n_in))
-        self.output = softmax((1-self.p_dropout)*T.dot(self.inpt, self.w) + self.b)
+        self.output = softmax(
+            (1-self.p_dropout)*T.dot(self.inpt, self.w) + self.b, axis=1)
         self.y_out = T.argmax(self.output, axis=1)
         self.inpt_dropout = dropout_layer(
             inpt_dropout.reshape((mini_batch_size, self.n_in)), self.p_dropout)
-        self.output_dropout = softmax(T.dot(self.inpt_dropout, self.w) + self.b)
+        self.output_dropout = softmax(
+            T.dot(self.inpt_dropout, self.w) + self.b, axis=1)
 
     def cost(self, net):
         "Return the log-likelihood cost."
@@ -308,7 +315,7 @@ def size(data):
     return data[0].get_value(borrow=True).shape[0]
 
 def dropout_layer(layer, p_dropout):
-    srng = shared_randomstreams.RandomStreams(
+    srng = RandomStream(
         np.random.RandomState(0).randint(999999))
-    mask = srng.binomial(n=1, p=1-p_dropout, size=layer.shape)
-    return layer*T.cast(mask, theano.config.floatX)
+    mask = srng.binomial(1, 1-p_dropout, size=layer.shape)
+    return layer*T.cast(mask, pytensor.config.floatX)
